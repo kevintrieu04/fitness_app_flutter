@@ -2,7 +2,9 @@ import 'dart:math';
 
 import '../../models/counter_data.dart';
 
-class Counter {
+abstract class Counter {
+  CounterState state = CounterState.up;
+  ViewType viewType = ViewType.undetermined;
   final double userWeight;
   late final double caloriesPerRep;
   double caloriesBurnt = 0;
@@ -56,5 +58,37 @@ class Counter {
             (smoothedPoint * (1.0 - smoothingFactor));
       }
     }
+  }
+
+  ViewType determineViewType(
+    Map<dynamic, Point3D> landmarkPoints,
+    Map<dynamic, dynamic> likelihood,
+  ) {
+    final leftShoulder = landmarkPoints['leftShoulder'];
+    final rightShoulder = landmarkPoints['rightShoulder'];
+    final leftHip = landmarkPoints['leftHip'];
+    final rightHip = landmarkPoints['rightHip'];
+
+    if (leftShoulder == null ||
+        rightShoulder == null ||
+        leftHip == null ||
+        rightHip == null) {
+      return ViewType
+          .undetermined; // Cannot determine without core body landmarks
+    }
+
+    // Side view check: large Z-difference between shoulders
+    //print(leftShoulder.z - rightShoulder.z);
+    if ((leftShoulder.z - rightShoulder.z).abs() > 250) {
+      // Threshold for side view
+      return ViewType.side;
+    }
+
+    // Front/Back view check: small Z-difference between shoulders
+    // Varies between counters
+    // Override this method in subclasses if needed
+
+    //print(landmarkPoints['nose']!.z);
+    return ViewType.undetermined;
   }
 }

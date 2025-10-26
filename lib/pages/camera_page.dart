@@ -152,7 +152,7 @@ class _CameraPageState extends State<CameraPage> {
   @override
   void dispose() {
     widget._counter.count = 0;
-    widget._counter.state = PushUpState.up;
+    widget._counter.state = CounterState.up;
     WakelockPlus.disable();
     poseDetector.close();
     super.dispose();

@@ -1,12 +1,10 @@
 import 'package:fitness_app/models/counter_data.dart';
 import 'package:fitness_app/utils/counters/counter.dart';
 
-class PushUpCounter extends Counter{
-  PushUpState state = PushUpState.up;
-  PushUpViewType viewType = PushUpViewType.undetermined;
+class PushUpCounter extends Counter {
+
   bool isBackStraight = true; // New property for UI feedback
   bool _isDown = false; // New internal state for counting readiness
-
 
   PushUpCounter({required super.userWeight});
 
@@ -14,10 +12,10 @@ class PushUpCounter extends Counter{
     double minAngle = 0;
     double maxAngle = 0;
 
-    if (viewType == PushUpViewType.side) {
+    if (viewType == ViewType.side) {
       minAngle = 65; // Angle when arm is bent (down position)
       maxAngle = 105; // Angle when arm is straight (up position)
-    } else if (viewType == PushUpViewType.front) {
+    } else if (viewType == ViewType.front) {
       // For front and back views, angles might be larger
       minAngle = 95; // Angle when arm is bent (down position)
       maxAngle = 160; // Angle when arm is straight (up position)
@@ -26,15 +24,15 @@ class PushUpCounter extends Counter{
       maxAngle = 160; // Angle when arm is straight (up position)
     }
 
-    if (state == PushUpState.up && angle < minAngle && _isDown) {
-      state = PushUpState.down;
-    } else if (!_isDown && state == PushUpState.down && angle > maxAngle) {
-      state = PushUpState.up;
+    if (state == CounterState.up && angle < minAngle && _isDown) {
+      state = CounterState.down;
+    } else if (!_isDown && state == CounterState.down && angle > maxAngle) {
+      state = CounterState.up;
       count++;
       caloriesBurnt += caloriesPerRep;
     }
-    print("state: $state");
-    print("angle: $angle");
+    //print("state: $state");
+    //print("angle: $angle");
   }
 
   bool _checkBackStraightness(
@@ -82,9 +80,9 @@ class PushUpCounter extends Counter{
   bool _checkDownPosition(
     Map<dynamic, Point3D> landmarkPoints,
     Map<dynamic, dynamic> likelihood,
-    PushUpViewType currentViewType, // Pass viewType to this function
+    ViewType currentViewType, // Pass viewType to this function
   ) {
-    if (currentViewType == PushUpViewType.back) {
+    if (currentViewType == ViewType.back) {
       final leftShoulder = landmarkPoints['leftShoulder'];
       final rightShoulder = landmarkPoints['rightShoulder'];
       final leftElbow = landmarkPoints['leftElbow'];
@@ -136,36 +134,22 @@ class PushUpCounter extends Counter{
     }
   }
 
-  PushUpViewType _determineViewType(
+  @override
+  ViewType determineViewType(
     Map<dynamic, Point3D> landmarkPoints,
     Map<dynamic, dynamic> likelihood,
   ) {
-    final leftShoulder = landmarkPoints['leftShoulder'];
-    final rightShoulder = landmarkPoints['rightShoulder'];
-    final leftHip = landmarkPoints['leftHip'];
-    final rightHip = landmarkPoints['rightHip'];
-
-    if (leftShoulder == null ||
-        rightShoulder == null ||
-        leftHip == null ||
-        rightHip == null) {
-      return PushUpViewType
-          .undetermined; // Cannot determine without core body landmarks
-    }
-
-    // Side view check: large Z-difference between shoulders
-    //print(leftShoulder.z - rightShoulder.z);
-    if ((leftShoulder.z - rightShoulder.z).abs() > 250) {
-      // Threshold for side view
-      return PushUpViewType.side;
+    final currentViewType = super.determineViewType(landmarkPoints, likelihood);
+    if (currentViewType != ViewType.undetermined) {
+      return currentViewType;
     }
 
     // Front/Back view check: small Z-difference between shoulders
     // Check ankles Z coordinates
     final leftAnkle = landmarkPoints['leftAnkle'];
     final rightAnkle = landmarkPoints['rightAnkle'];
-    print("leftAnkle: ${leftAnkle!.z}");
-    print("rightAnkle: ${rightAnkle!.z}");
+    //print("leftAnkle: ${leftAnkle!.z}");
+    //print("rightAnkle: ${rightAnkle!.z}");
     Point3D? ankleToCompare;
     bool leftAnkleVisible = (likelihood['leftAnkle'] ?? 0.0) > 0.5;
     bool rightAnkleVisible = (likelihood['rightAnkle'] ?? 0.0) > 0.5;
@@ -184,13 +168,13 @@ class PushUpCounter extends Counter{
           (likelihood['rightShoulder'] ?? 0) > 0.5 &&
           (likelihood['leftHip'] ?? 0) > 0.5 &&
           (likelihood['rightHip'] ?? 0) > 0.5) {
-        return PushUpViewType.back;
+        return ViewType.back;
       }
     } else {
-      return PushUpViewType.front;
+      return ViewType.front;
     }
 
-    return PushUpViewType.undetermined;
+    return ViewType.undetermined;
   }
 
   void updateFromLandmarks(List<Map<String, dynamic>> landmarks) {
@@ -208,14 +192,14 @@ class PushUpCounter extends Counter{
     };
 
     // Determine view type dynamically
-    final currentDetectedView = _determineViewType(
+    final currentDetectedView = determineViewType(
       smoothedLandmarks,
       landmarkLikelihoods,
     );
-    if (currentDetectedView != PushUpViewType.undetermined) {
+    if (currentDetectedView != ViewType.undetermined) {
       viewType = currentDetectedView;
     }
-    print(viewType);
+    //print(viewType);
 
     // Check back straightness for all exercises, but mainly for pushups visually
 
@@ -224,7 +208,7 @@ class PushUpCounter extends Counter{
       landmarkLikelihoods,
       viewType,
     ); // Pass viewType
-    print("_isDown: $_isDown");
+    //print("_isDown: $_isDown");
 
     // No longer explicitly setting viewType here, handled by _determineViewType
     // print("viewType: $viewType");
@@ -233,7 +217,7 @@ class PushUpCounter extends Counter{
       landmarkLikelihoods,
     );
     if (!isBackStraight) {
-      state = PushUpState.up;
+      state = CounterState.up;
       return;
     }
     // Existing pushup angle calculation logic

@@ -4,7 +4,7 @@ import 'package:fitness_app/utils/counters/counter.dart';
 class LungeCounter extends Counter {
   LungeCounter({required super.userWeight});
 
-  LungeState _state = LungeState.up;
+  CounterState _state = CounterState.up;
   LungeLastStep _lastStep = LungeLastStep.left;
 
   void updateFromLandmarks(List<Map<String, dynamic>> landmarks) {

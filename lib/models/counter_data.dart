@@ -30,12 +30,10 @@ class Point3D {
   double get distance => sqrt(x * x + y * y + z * z);
 }
 
-enum PushUpState { up, down }
-enum PushUpViewType { front, side, back, undetermined }
-enum ExerciseType { pushup, squat }
+enum CounterState { up, down }
+enum ViewType { front, side, back, undetermined }
+enum ExerciseType { pushup, squat, lunge, bridge }
 
-enum LungeState {up, down}
 enum LungeLastStep {left, right}
 
-enum SquatState {up, down}
 

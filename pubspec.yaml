@@ -73,6 +73,8 @@ flutter:
     - assets/videos/comparator_test_video.mp4
     - assets/videos/pushups/pushup_test.mp4
     - assets/videos/squats/squat_test.mp4
+    - assets/videos/squats/squat_side_test.mp4
+    - assets/videos/squats/squat_360_test.mp4
     - assets/video_landmark/reference_pose.json
     - assets/videos/pushups/pushup_front_test.mp4
     - assets/videos/pushups/wrong_pushup_test.mp4
