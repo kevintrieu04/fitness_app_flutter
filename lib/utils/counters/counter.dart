@@ -79,11 +79,15 @@ abstract class Counter {
 
     // Side view check: large Z-difference between shoulders
     //print(leftShoulder.z - rightShoulder.z);
+    /*
     if ((leftShoulder.z - rightShoulder.z).abs() > 250) {
       // Threshold for side view
       return ViewType.side;
+    }*/
+    if ((leftShoulder.z < 0 && rightShoulder.z > 0) ||
+        (leftShoulder.z > 0 && rightShoulder.z < 0)) {
+      return ViewType.side;
     }
-
     // Front/Back view check: small Z-difference between shoulders
     // Varies between counters
     // Override this method in subclasses if needed

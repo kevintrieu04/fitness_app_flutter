@@ -4,8 +4,91 @@ import 'package:fitness_app/utils/counters/counter.dart';
 class LungeCounter extends Counter {
   LungeCounter({required super.userWeight});
 
-  CounterState _state = CounterState.up;
-  LungeLastStep _lastStep = LungeLastStep.left;
+  LungeLastStep _step = LungeLastStep.left;
+
+  @override
+  ViewType determineViewType(Map<dynamic, Point3D> landmarkPoints,
+      Map<dynamic, dynamic> likelihood,) {
+    final currentViewType = super.determineViewType(landmarkPoints, likelihood);
+    if (currentViewType != ViewType.undetermined) {
+      return currentViewType;
+    }
+
+    // Front/Back view detection for squats
+    final noseLandmark = landmarkPoints['nose'];
+    final leftShoulderLikelihood = likelihood['leftShoulder'] ?? 0.0;
+    final rightShoulderLikelihood = likelihood['rightShoulder'] ?? 0.0;
+
+    if (leftShoulderLikelihood < 0.5 && rightShoulderLikelihood < 0.5) {
+      return ViewType.undetermined;
+    }
+    if (noseLandmark != null && noseLandmark.z <= 0) {
+      return ViewType.front;
+    } else if (noseLandmark != null && noseLandmark.z > 0) {
+      return ViewType.back;
+    }
+
+    return ViewType.undetermined;
+  }
+
+  bool _verifyStep(Map<dynamic, Point3D> smoothedLandmarks,
+      Map<dynamic, dynamic> likelihood,) {
+    bool isLeft =
+        (likelihood['leftShoulder'] ?? 0) > (likelihood['rightShoulder'] ?? 0);
+    bool isRight =
+        (likelihood['leftShoulder'] ?? 0) < (likelihood['rightShoulder'] ?? 0);
+
+    if (viewType == ViewType.side) {
+      //print("Left x: ${smoothedLandmarks['leftFootIndex']!.x}");
+      //print("Right x: ${smoothedLandmarks['rightFootIndex']!.x}");
+      if (isLeft) {
+        if (_step == LungeLastStep.right &&
+            smoothedLandmarks['leftFootIndex']!.x <
+                smoothedLandmarks['rightFootIndex']!.x) {
+          return true;
+        } else if (_step == LungeLastStep.left &&
+            smoothedLandmarks['leftFootIndex']!.x >
+                smoothedLandmarks['rightFootIndex']!.x) {
+          return true;
+        }
+      }
+      if (isRight) {
+        if (_step == LungeLastStep.right &&
+            smoothedLandmarks['leftFootIndex']!.x >
+                smoothedLandmarks['rightFootIndex']!.x) {
+          return true;
+        } else if (_step == LungeLastStep.left &&
+            smoothedLandmarks['leftFootIndex']!.x <
+                smoothedLandmarks['rightFootIndex']!.x) {
+          return true;
+        }
+      }
+    } else if (viewType == ViewType.front) {
+      //print("Left z: ${smoothedLandmarks['leftFootIndex']!.z}");
+      //print("Right z: ${smoothedLandmarks['rightFootIndex']!.z}");
+      if (_step == LungeLastStep.right &&
+          smoothedLandmarks['leftFootIndex']!.z <
+              smoothedLandmarks['rightFootIndex']!.z) {
+        return true;
+      } else if (_step == LungeLastStep.left &&
+          smoothedLandmarks['leftFootIndex']!.z >
+              smoothedLandmarks['rightFootIndex']!.z) {
+        return true;
+      }
+    } else if (viewType == ViewType.back) {
+      if (_step == LungeLastStep.right &&
+          smoothedLandmarks['leftFootIndex']!.z >
+              smoothedLandmarks['rightFootIndex']!.z) {
+        return true;
+      } else if (_step == LungeLastStep.left &&
+          smoothedLandmarks['leftFootIndex']!.z <
+              smoothedLandmarks['rightFootIndex']!.z) {
+        return true;
+      }
+    }
+
+    return false;
+  }
 
   void updateFromLandmarks(List<Map<String, dynamic>> landmarks) {
     if (landmarks.isEmpty) {
@@ -18,6 +101,14 @@ class LungeCounter extends Counter {
     final landmarkLikelihoods = {
       for (var lm in landmarks) lm['type']: lm['inFrameLikelihood'],
     };
+
+    final currentDetectedView = determineViewType(
+      smoothedLandmarks,
+      landmarkLikelihoods,
+    );
+    if (currentDetectedView != ViewType.undetermined) {
+      viewType = currentDetectedView;
+    }
 
     // Existing lunge angle calculation logic
     Point3D? rightHip = smoothedLandmarks['rightHip'];
@@ -35,23 +126,44 @@ class LungeCounter extends Counter {
         leftAnkle != null) {
       final leftAngle = calculateAngle3D(leftHip, leftKnee, leftAnkle);
       final rightAngle = calculateAngle3D(rightHip, rightKnee, rightAnkle);
-      print("Lunge Left Angle: $leftAngle");
-      print("Lunge Right Angle: $rightAngle");
-      //_update(leftAngle, rightAngle);
+      //print("Lunge Left Angle: $leftAngle");
+      //print("Lunge Right Angle: $rightAngle");
+      _update(leftAngle, rightAngle, landmarkLikelihoods);
     }
-
   }
 
-  /*void _update(double leftAngle, rightAngle) {
-    double minAngle = 100;
-    double maxAngle = 160;
+  void _update(double leftAngle, rightAngle, Map<dynamic, dynamic> likelihood) {
+    double minAngle = 120;
+    double maxAngle = 165;
 
-    if (state == SquatState.up && angle < minAngle) {
-      state = SquatState.down;
-    } else if (state == SquatState.down && angle > maxAngle) {
-      state = SquatState.up;
+    if (viewType == ViewType.front) {
+      minAngle = 80;
+      maxAngle = 115;
+    } else if (viewType == ViewType.back) {
+      minAngle = 85;
+      maxAngle = 115;
+    }
+
+    bool verify = _verifyStep(smoothedLandmarks, likelihood);
+    //print("verify: $verify");
+    //print("_step: $_step");
+    if (state == CounterState.up &&
+        leftAngle < minAngle &&
+        rightAngle < minAngle &&
+        verify) {
+      state = CounterState.down;
+      if (_step == LungeLastStep.left) {
+        _step = LungeLastStep.right;
+      } else if (_step == LungeLastStep.right) {
+        _step = LungeLastStep.left;
+      }
+    } else if (state == CounterState.down &&
+        leftAngle > maxAngle &&
+        rightAngle > maxAngle) {
+      state = CounterState.up;
       count++;
       caloriesBurnt += caloriesPerRep;
     }
-  }*/
+    print("state: $state");
+  }
 }

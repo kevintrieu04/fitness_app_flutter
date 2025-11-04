@@ -55,9 +55,17 @@ class AppNavigator {
   static void squatOnTap(BuildContext context) {
     _openAlertDialogue(
       context,
-      "assets/videos/squats/squat_side_test.mp4",
+      "assets/videos/squats/squat_360_test.mp4",
       //"assets/videos/back_view_test.mp4",
       ExerciseType.squat,
+    );
+  }
+
+  static void lungeOnTap(BuildContext context) {
+    _openAlertDialogue(
+      context,
+      "assets/videos/lunges/lunge_front_test.mp4",
+      ExerciseType.lunge,
     );
   }
 }

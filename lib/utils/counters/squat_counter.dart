@@ -46,10 +46,10 @@ class SquatCounter extends Counter {
 
     bool isLeft =
         (likelihood['leftKnee'] ?? 0) > (likelihood['rightKnee'] ?? 0) &&
-        (likelihood['leftAnkle'] ?? 0) > (likelihood['rightAnkle'] ?? 0);
+        (likelihood['leftFootIndex'] ?? 0) > (likelihood['rightFootIndex'] ?? 0);
     bool isRight =
         (likelihood['leftKnee'] ?? 0) < (likelihood['rightKnee'] ?? 0) &&
-        (likelihood['leftAnkle'] ?? 0) < (likelihood['rightAnkle'] ?? 0);
+        (likelihood['leftFootIndex'] ?? 0) < (likelihood['rightFootIndex'] ?? 0);
 
     if (leftKnee != null &&
         rightKnee != null &&
@@ -93,7 +93,7 @@ class SquatCounter extends Counter {
       smoothedLandmarks,
       landmarkLikelihoods,
     );
-    //print(currentDetectedView);
+    print(currentDetectedView);
     if (currentDetectedView != ViewType.undetermined) {
       viewType = currentDetectedView;
     }
@@ -101,11 +101,11 @@ class SquatCounter extends Counter {
       smoothedLandmarks,
       landmarkLikelihoods,
     );
-    if (!isKneesCorrect && !_isTransitioning) {
+    /*if (!isKneesCorrect && !_isTransitioning) {
       //print("Incorrect Knees");
       state = CounterState.up;
       return;
-    }
+    }*/
 
 
     // Existing squat angle calculation logic
