@@ -16,6 +16,7 @@ import 'package:path/path.dart' as p;
 import '../../utils/counters/counter.dart';
 import '../../utils/counters/push_up_counter.dart';
 import '../../utils/data_processors/process_video_for_counter.dart';
+import '../utils/counters/bridge_counter.dart';
 
 class VideoPlayerTestPage extends StatefulWidget {
   const VideoPlayerTestPage({
@@ -55,6 +56,8 @@ class _VideoPlayerTestPageState extends State<VideoPlayerTestPage> {
       _counter = SquatCounter(userWeight: widget.userWeight);
     } else if (widget.exerciseType == ExerciseType.lunge) {
       _counter = LungeCounter(userWeight: widget.userWeight);
+    } else if (widget.exerciseType == ExerciseType.bridge) {
+      _counter = BridgeCounter(userWeight: widget.userWeight);
     } else {
       throw Exception("Invalid exercise type");
     }
@@ -99,6 +102,8 @@ class _VideoPlayerTestPageState extends State<VideoPlayerTestPage> {
       } else if (_counter is SquatCounter) {
         _counter.updateFromLandmarks(_currentLandmarks);
       } else if (_counter is LungeCounter) {
+        _counter.updateFromLandmarks(_currentLandmarks);
+      } else if (_counter is BridgeCounter) {
         _counter.updateFromLandmarks(_currentLandmarks);
       }
     });

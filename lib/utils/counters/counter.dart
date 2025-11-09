@@ -88,11 +88,64 @@ abstract class Counter {
         (leftShoulder.z > 0 && rightShoulder.z < 0)) {
       return ViewType.side;
     }
-    // Front/Back view check: small Z-difference between shoulders
-    // Varies between counters
-    // Override this method in subclasses if needed
 
-    //print(landmarkPoints['nose']!.z);
+    // Front/Back view detection for squats
+    final noseLandmark = landmarkPoints['nose'];
+    final leftShoulderLikelihood = likelihood['leftShoulder'] ?? 0.0;
+    final rightShoulderLikelihood = likelihood['rightShoulder'] ?? 0.0;
+
+    if (leftShoulderLikelihood < 0.5 && rightShoulderLikelihood < 0.5) {
+      return ViewType.undetermined;
+    }
+    if (noseLandmark != null && noseLandmark.z <= 0) {
+      return ViewType.front;
+    } else if (noseLandmark != null && noseLandmark.z > 0) {
+      return ViewType.back;
+    }
+
     return ViewType.undetermined;
   }
+
+  bool checkBackStraightness(
+      Map<dynamic, Point3D> landmarkPoints,
+      Map<dynamic, dynamic> likelihood,
+      ) {
+    final leftShoulder = landmarkPoints['leftShoulder'];
+    final leftHip = landmarkPoints['leftHip'];
+    final leftAnkle = landmarkPoints['leftAnkle'];
+    final rightShoulder = landmarkPoints['rightShoulder'];
+    final rightHip = landmarkPoints['rightHip'];
+    final rightAnkle = landmarkPoints['rightAnkle'];
+
+    // A straight back in 3D space seems to be in the 120-190 degree range based on test data.
+    const minBackAngle = 100;
+    const maxBackAngle = 190;
+
+    if (leftShoulder != null &&
+        leftHip != null &&
+        leftAnkle != null &&
+        (likelihood['leftShoulder'] ?? 0) > 0.5) {
+      final leftBackAngle = calculateAngle3D(leftShoulder, leftHip, leftAnkle);
+      //print("leftBackAngle: $leftBackAngle");
+      if (leftBackAngle < minBackAngle || leftBackAngle > maxBackAngle) {
+        return false;
+      }
+    }
+    if (rightShoulder != null &&
+        rightHip != null &&
+        rightAnkle != null &&
+        (likelihood['rightShoulder'] ?? 0) > 0.5) {
+      final rightBackAngle = calculateAngle3D(
+        rightShoulder,
+        rightHip,
+        rightAnkle,
+      );
+      //print("rightBackAngle: $rightBackAngle");
+      if (rightBackAngle < minBackAngle || rightBackAngle > maxBackAngle) {
+        return false;
+      }
+    }
+    return true; // Assume straight if landmarks are missing or angles are within range
+  }
+
 }

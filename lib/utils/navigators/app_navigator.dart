@@ -68,4 +68,12 @@ class AppNavigator {
       ExerciseType.lunge,
     );
   }
+
+  static void bridgeOnTap(BuildContext context) {
+    _openAlertDialogue(
+      context,
+      "assets/videos/bridges/bridge_test.mp4",
+      ExerciseType.bridge,
+    );
+  }
 }

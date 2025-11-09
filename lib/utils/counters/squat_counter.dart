@@ -8,33 +8,6 @@ class SquatCounter extends Counter {
 
   bool _isTransitioning = false;
 
-  @override
-  ViewType determineViewType(
-    Map<dynamic, Point3D> landmarkPoints,
-    Map<dynamic, dynamic> likelihood,
-  ) {
-    final currentViewType = super.determineViewType(landmarkPoints, likelihood);
-    if (currentViewType != ViewType.undetermined) {
-      return currentViewType;
-    }
-
-    // Front/Back view detection for squats
-    final noseLandmark = landmarkPoints['nose'];
-    final leftShoulderLikelihood = likelihood['leftShoulder'] ?? 0.0;
-    final rightShoulderLikelihood = likelihood['rightShoulder'] ?? 0.0;
-
-    if (leftShoulderLikelihood < 0.5 && rightShoulderLikelihood < 0.5) {
-      return ViewType.undetermined;
-    }
-    if (noseLandmark != null && noseLandmark.z <= 0) {
-      return ViewType.front;
-    } else if (noseLandmark != null && noseLandmark.z > 0) {
-      return ViewType.back;
-    }
-
-    return ViewType.undetermined;
-  }
-
   bool _checkKneesPosition(
     Map<dynamic, Point3D> smoothedLandmarks,
     Map<dynamic, dynamic> likelihood,

@@ -6,33 +6,10 @@ class LungeCounter extends Counter {
 
   LungeLastStep _step = LungeLastStep.left;
 
-  @override
-  ViewType determineViewType(Map<dynamic, Point3D> landmarkPoints,
-      Map<dynamic, dynamic> likelihood,) {
-    final currentViewType = super.determineViewType(landmarkPoints, likelihood);
-    if (currentViewType != ViewType.undetermined) {
-      return currentViewType;
-    }
-
-    // Front/Back view detection for squats
-    final noseLandmark = landmarkPoints['nose'];
-    final leftShoulderLikelihood = likelihood['leftShoulder'] ?? 0.0;
-    final rightShoulderLikelihood = likelihood['rightShoulder'] ?? 0.0;
-
-    if (leftShoulderLikelihood < 0.5 && rightShoulderLikelihood < 0.5) {
-      return ViewType.undetermined;
-    }
-    if (noseLandmark != null && noseLandmark.z <= 0) {
-      return ViewType.front;
-    } else if (noseLandmark != null && noseLandmark.z > 0) {
-      return ViewType.back;
-    }
-
-    return ViewType.undetermined;
-  }
-
-  bool _verifyStep(Map<dynamic, Point3D> smoothedLandmarks,
-      Map<dynamic, dynamic> likelihood,) {
+  bool _verifyStep(
+    Map<dynamic, Point3D> smoothedLandmarks,
+    Map<dynamic, dynamic> likelihood,
+  ) {
     bool isLeft =
         (likelihood['leftShoulder'] ?? 0) > (likelihood['rightShoulder'] ?? 0);
     bool isRight =
