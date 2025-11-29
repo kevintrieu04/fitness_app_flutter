@@ -1,4 +1,4 @@
-import 'package:fitness_app/models/counter_data.dart';
+import 'package:fitness_app/data/counter_data.dart';
 import 'package:fitness_app/utils/counters/counter.dart';
 
 class PushUpCounter extends Counter {
@@ -153,6 +153,7 @@ class PushUpCounter extends Counter {
     return ViewType.undetermined;
   }
 
+  @override
   void updateFromLandmarks(List<Map<String, dynamic>> landmarks) {
     if (landmarks.isEmpty) {
       _isDown = false; // Reset ready state if no landmarks

@@ -2,8 +2,9 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:fitness_app/models/counter_data.dart';
+import 'package:fitness_app/data/counter_data.dart';
 import 'package:fitness_app/utils/counters/lunge_counter.dart';
+import 'package:fitness_app/utils/counters/pull_up_counter.dart';
 import 'package:fitness_app/utils/counters/squat_counter.dart';
 import 'package:fitness_app/utils/data_processors/pose_painter.dart';
 import 'package:flutter/material.dart';
@@ -15,7 +16,7 @@ import 'package:path/path.dart' as p;
 
 import '../../utils/counters/counter.dart';
 import '../../utils/counters/push_up_counter.dart';
-import '../../utils/data_processors/process_video_for_counter.dart';
+import '../../utils/data_processors/process_video.dart';
 import '../utils/counters/bridge_counter.dart';
 
 class VideoPlayerTestPage extends StatefulWidget {
@@ -50,16 +51,22 @@ class _VideoPlayerTestPageState extends State<VideoPlayerTestPage> {
   }
 
   Future<void> _init() async {
-    if (widget.exerciseType == ExerciseType.pushup) {
-      _counter = PushUpCounter(userWeight: widget.userWeight);
-    } else if (widget.exerciseType == ExerciseType.squat) {
-      _counter = SquatCounter(userWeight: widget.userWeight);
-    } else if (widget.exerciseType == ExerciseType.lunge) {
-      _counter = LungeCounter(userWeight: widget.userWeight);
-    } else if (widget.exerciseType == ExerciseType.bridge) {
-      _counter = BridgeCounter(userWeight: widget.userWeight);
-    } else {
-      throw Exception("Invalid exercise type");
+    switch (widget.exerciseType) {
+      case ExerciseType.pushup:
+        _counter = PushUpCounter(userWeight: widget.userWeight);
+        break;
+      case ExerciseType.squat:
+        _counter = SquatCounter(userWeight: widget.userWeight);
+        break;
+      case ExerciseType.lunge:
+        _counter = LungeCounter(userWeight: widget.userWeight);
+        break;
+      case ExerciseType.bridge:
+        _counter = BridgeCounter(userWeight: widget.userWeight);
+        break;
+      case ExerciseType.pullup:
+        _counter = PullUpCounter(userWeight: widget.userWeight);
+        break;
     }
 
     await _initVideo();
@@ -97,15 +104,7 @@ class _VideoPlayerTestPageState extends State<VideoPlayerTestPage> {
       });
 
       // Count the pushups/squats here
-      if (_counter is PushUpCounter) {
-        _counter.updateFromLandmarks(_currentLandmarks);
-      } else if (_counter is SquatCounter) {
-        _counter.updateFromLandmarks(_currentLandmarks);
-      } else if (_counter is LungeCounter) {
-        _counter.updateFromLandmarks(_currentLandmarks);
-      } else if (_counter is BridgeCounter) {
-        _counter.updateFromLandmarks(_currentLandmarks);
-      }
+      _counter.updateFromLandmarks(_currentLandmarks);
     });
 
     // Start the video only after everything is initialized

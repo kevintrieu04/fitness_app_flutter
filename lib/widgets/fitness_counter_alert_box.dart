@@ -1,7 +1,7 @@
 import 'package:fitness_app/utils/navigators/app_navigator.dart';
 import 'package:flutter/material.dart';
 
-import '../models/counter_data.dart';
+import '../data/counter_data.dart';
 
 class FitnessCounterAlertBox extends StatefulWidget {
   const FitnessCounterAlertBox({

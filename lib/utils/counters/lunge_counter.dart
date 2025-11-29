@@ -1,4 +1,4 @@
-import 'package:fitness_app/models/counter_data.dart';
+import 'package:fitness_app/data/counter_data.dart';
 import 'package:fitness_app/utils/counters/counter.dart';
 
 class LungeCounter extends Counter {
@@ -67,6 +67,7 @@ class LungeCounter extends Counter {
     return false;
   }
 
+  @override
   void updateFromLandmarks(List<Map<String, dynamic>> landmarks) {
     if (landmarks.isEmpty) {
       smoothedLandmarks.clear(); // Clear smoothed data on reset
@@ -108,6 +109,7 @@ class LungeCounter extends Counter {
       _update(leftAngle, rightAngle, landmarkLikelihoods);
     }
   }
+
 
   void _update(double leftAngle, rightAngle, Map<dynamic, dynamic> likelihood) {
     double minAngle = 120;

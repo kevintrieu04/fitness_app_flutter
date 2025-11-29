@@ -1,14 +1,14 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:fitness_app/models/counter_data.dart';
+import 'package:fitness_app/data/counter_data.dart';
 import 'package:fitness_app/utils/counters/push_up_counter.dart';
 import 'package:fitness_app/utils/counters/squat_counter.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 
-import 'package:fitness_app/utils/data_processors/process_video_for_counter.dart';
+import 'package:fitness_app/utils/data_processors/process_video.dart';
 import 'package:integration_test/integration_test.dart';
 
 Future<List<Map<String, dynamic>>> getPoseData({

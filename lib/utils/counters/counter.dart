@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import '../../models/counter_data.dart';
+import '../../data/counter_data.dart';
 
 abstract class Counter {
   CounterState state = CounterState.up;
@@ -9,6 +9,8 @@ abstract class Counter {
   late final double caloriesPerRep;
   double caloriesBurnt = 0;
   int count = 0;
+
+  void updateFromLandmarks(List<Map<String, dynamic>> landmarks);
 
   // EMA smoothing factor
   final double _smoothingFactor = 0.2;

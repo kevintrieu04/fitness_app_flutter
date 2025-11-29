@@ -1,4 +1,4 @@
-import '../../models/counter_data.dart';
+import '../../data/counter_data.dart';
 import 'counter.dart';
 
 class BridgeCounter extends Counter {
@@ -23,7 +23,7 @@ class BridgeCounter extends Counter {
     }
   }
 
-
+  @override
   void updateFromLandmarks(List<Map<String, dynamic>> landmarks) {
     if (landmarks.isEmpty) {
       smoothedLandmarks.clear();

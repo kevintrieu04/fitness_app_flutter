@@ -42,6 +42,9 @@ dependencies:
   path_provider: ^2.1.5
   chewie: ^1.12.1
   carousel_slider: ^5.1.1
+  image_picker: ^1.2.1
+  retrofit: ^4.9.1
+  dio: ^5.5.0+1
 
 dev_dependencies:
   flutter_test:
@@ -55,6 +58,8 @@ dev_dependencies:
   flutter_lints: ^5.0.0
   integration_test:
     sdk: flutter
+  build_runner: ^2.4.11
+  retrofit_generator: ^8.1.1
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -69,6 +74,12 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
+    - assets/images/app_bar.webp
+    - assets/images/lunge.webp
+    - assets/images/push_up.jpg
+    - assets/images/squat.jpg
+    - assets/images/bridge.webp
+    - assets/images/pullup.webp
     - assets/videos/input_video.mp4
     - assets/videos/comparator_test_video.mp4
     - assets/videos/pushups/pushup_test.mp4
@@ -80,14 +91,12 @@ flutter:
     - assets/videos/pushups/wrong_pushup_test.mp4
     - assets/videos/pushups/360_pushup.mp4
     - assets/videos/pushups/180_pushup.mp4
-    - assets/images/app_bar.webp
-    - assets/images/lunge.webp
-    - assets/images/push_up.jpg
-    - assets/images/squat.jpg
-    - assets/images/bridge.webp
     - assets/videos/lunges/lunge_test.mp4
     - assets/videos/lunges/lunge_front_test.mp4
     - assets/videos/bridges/bridge_test.mp4
+    - assets/videos/pullups/pull_up_front_view.mp4
+    - assets/videos/pullups/pull_up_side_view.mp4
+    - assets/videos/pullups/pull_up_back_view.mp4
   #  - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

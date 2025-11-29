@@ -1,8 +1,11 @@
+import 'package:fitness_app/pages/counter_option_page.dart';
 import 'package:fitness_app/widgets/fitness_counter_alert_box.dart';
 import 'package:flutter/material.dart';
 
-import '../../models/counter_data.dart';
+import '../../data/counter_data.dart';
+import '../../pages/calories_estimation_page.dart';
 import '../../pages/camera_page.dart';
+import '../../pages/exercise_planner_page.dart';
 import '../../pages/video_player_test_page.dart';
 
 class AppNavigator {
@@ -44,6 +47,12 @@ class AppNavigator {
     );
   }
 
+  static void expandCounterList(BuildContext context) {
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (context) => CounterOptionPage()));
+  }
+
   static void pushUpOnTap(BuildContext context) {
     _openAlertDialogue(
       context,
@@ -74,6 +83,26 @@ class AppNavigator {
       context,
       "assets/videos/bridges/bridge_test.mp4",
       ExerciseType.bridge,
+    );
+  }
+
+  static void pullUpOnTap(BuildContext context) {
+    _openAlertDialogue(
+      context,
+      "assets/videos/pullups/pull_up_front_view.mp4",
+      ExerciseType.pullup,
+    );
+  }
+
+  static void calorieEstimatorOnTap(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (context) => const CaloriesEstimationPage()),
+    );
+  }
+
+  static void exercisePlannerOnTap(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (context) => const ExercisePlannerPage()),
     );
   }
 }
