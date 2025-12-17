@@ -58,7 +58,7 @@ class _FitnessCounterAlertBoxState extends State<FitnessCounterAlertBox> {
                   );
                 } else {
                   Navigator.of(context).pop();
-                  AppNavigator.onOpenVideoPlayer(
+                  AppNavigator.onOpenCounterTestPage(
                     context,
                     widget.link,
                     widget.type,

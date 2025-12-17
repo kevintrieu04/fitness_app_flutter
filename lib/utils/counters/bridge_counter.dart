@@ -1,5 +1,5 @@
 import '../../data/counter_data.dart';
-import 'counter.dart';
+import '../abstract_classes/counter.dart';
 
 class BridgeCounter extends Counter {
   BridgeCounter({required super.userWeight}) {

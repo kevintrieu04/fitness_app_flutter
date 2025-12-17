@@ -1,5 +1,5 @@
 import 'package:fitness_app/data/counter_data.dart';
-import 'package:fitness_app/utils/counters/counter.dart';
+import 'package:fitness_app/utils/abstract_classes/counter.dart';
 
 class LungeCounter extends Counter {
   LungeCounter({required super.userWeight});

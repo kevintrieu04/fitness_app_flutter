@@ -168,3 +168,5 @@ app.*.symbols
 **/assets/videos/comparator_test_video.mp4
 **/assets/videos/input_video.mp4
 
+# Firebase options
+**/lib/firebase_options.dart

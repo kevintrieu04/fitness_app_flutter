@@ -45,6 +45,8 @@ dependencies:
   image_picker: ^1.2.1
   retrofit: ^4.9.1
   dio: ^5.5.0+1
+  firebase_auth: ^6.1.2
+  cloud_firestore: ^6.1.0
 
 dev_dependencies:
   flutter_test:
@@ -80,6 +82,7 @@ flutter:
     - assets/images/squat.jpg
     - assets/images/bridge.webp
     - assets/images/pullup.webp
+    - assets/images/volleyball.webp
     - assets/videos/input_video.mp4
     - assets/videos/comparator_test_video.mp4
     - assets/videos/pushups/pushup_test.mp4
@@ -91,6 +94,7 @@ flutter:
     - assets/videos/pushups/wrong_pushup_test.mp4
     - assets/videos/pushups/360_pushup.mp4
     - assets/videos/pushups/180_pushup.mp4
+    - assets/videos/pushups/daily_pushup_test.mp4
     - assets/videos/lunges/lunge_test.mp4
     - assets/videos/lunges/lunge_front_test.mp4
     - assets/videos/bridges/bridge_test.mp4

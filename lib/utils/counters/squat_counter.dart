@@ -1,6 +1,6 @@
 import 'package:fitness_app/data/counter_data.dart';
 
-import 'counter.dart';
+import '../abstract_classes/counter.dart';
 
 class SquatCounter extends Counter {
   SquatCounter({required super.userWeight});

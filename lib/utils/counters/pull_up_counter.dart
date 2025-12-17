@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:fitness_app/utils/counters/counter.dart';
+import 'package:fitness_app/utils/abstract_classes/counter.dart';
 
 import '../../data/counter_data.dart';
 

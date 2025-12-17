@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'dart:ui';
 
-import '../models/counter_data_item.dart';
+import '../models/carousel_item.dart';
 import '../utils/navigators/app_navigator.dart';
 
 
@@ -39,32 +39,32 @@ enum ExerciseType { pushup, squat, lunge, bridge, pullup }
 
 enum LungeLastStep {left, right}
 
-final List<CounterDataItem> counterDataItemList = [
-  CounterDataItem(
+final List<CarouselItem> counterCarouselItemList = [
+  CarouselItem(
     title: "Push Up",
     description: "Count the number of push ups you have done",
     icon: "assets/images/push_up.jpg",
     onTap: AppNavigator.pushUpOnTap,
   ),
-  CounterDataItem(
+  CarouselItem(
     title: "Squat",
     description: "Count the number of squats you have done",
     icon: "assets/images/squat.jpg",
     onTap: AppNavigator.squatOnTap,
   ),
-  CounterDataItem(
+  CarouselItem(
     title: "Bridge",
     description: "Count the number of bridges you have done",
     icon: "assets/images/bridge.webp",
     onTap: AppNavigator.bridgeOnTap,
   ),
-  CounterDataItem(
+  CarouselItem(
     title: "Lunge",
     description: "Count the number of lunges you have done",
     icon: "assets/images/lunge.webp",
     onTap: AppNavigator.lungeOnTap,
   ),
-  CounterDataItem(
+  CarouselItem(
     title: "Pull Up",
     description: "Count the number of pull ups you have done",
     icon: "assets/images/pullup.webp",

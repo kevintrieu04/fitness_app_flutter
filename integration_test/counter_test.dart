@@ -8,7 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 
-import 'package:fitness_app/utils/data_processors/process_video.dart';
+import 'package:fitness_app/utils/data_processors/video_processor.dart';
 import 'package:integration_test/integration_test.dart';
 
 Future<List<Map<String, dynamic>>> getPoseData({
@@ -16,12 +16,12 @@ Future<List<Map<String, dynamic>>> getPoseData({
   required ExerciseType type,
 }) async {
   // Preprocess video to get pose data
-  final processor = FramePreprocessor(
-    videoSourcePath: videoAssetPath,
+  final processor = VideoProcessor(
+    sourcePath: videoAssetPath,
     isAsset: true,
     frameRate: 5, // Matching the video_player_test_page
   );
-  await processor.processVideo(type: type);
+  await processor.process();
 
   // Load the generated JSON
   final dir = await getApplicationDocumentsDirectory();
