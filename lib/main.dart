@@ -1,8 +1,12 @@
 import 'package:camera/camera.dart';
-import 'package:fitness_app/pages/home_page.dart';
 import 'package:fitness_app/utils/data_processors/process_camera.dart';
+import 'package:fitness_app/utils/navigators/app_router.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:go_router/go_router.dart';
+import 'package:hive_ce_flutter/adapters.dart';
+import 'package:rive/rive.dart';
+import 'design/theme.dart';
 import 'firebase_options.dart';
 
 late List<CameraDescription> cameras;
@@ -10,6 +14,9 @@ late List<CameraDescription> cameras;
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   cameras = await availableCameras();
+  await Hive.initFlutter();
+  await Hive.openBox('app_box');
+  await RiveNative.init();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -36,12 +43,11 @@ class _FitnessAppState extends State<FitnessApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-      ),
-      home: const HomePage(),
+    final GoRouter router = buildRouter();
+    return MaterialApp.router(
+      title: 'Fitness App',
+      theme: buildTheme(),
+      routerConfig: router,
     );
   }
 }

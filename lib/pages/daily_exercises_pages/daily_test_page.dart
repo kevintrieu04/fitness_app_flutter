@@ -60,19 +60,19 @@ class _DailyTestPageState extends State<DailyTestPage> {
 
   Future<void> _init() async {
     switch (widget.exerciseType) {
-      case ExerciseType.pushup:
+      case ExerciseType.Pushup:
         _counter = PushUpCounter(userWeight: widget.userWeight);
         break;
-      case ExerciseType.squat:
+      case ExerciseType.Squat:
         _counter = SquatCounter(userWeight: widget.userWeight);
         break;
-      case ExerciseType.lunge:
+      case ExerciseType.Lunge:
         _counter = LungeCounter(userWeight: widget.userWeight);
         break;
-      case ExerciseType.bridge:
+      case ExerciseType.Bridge:
         _counter = BridgeCounter(userWeight: widget.userWeight);
         break;
-      case ExerciseType.pullup:
+      case ExerciseType.Pullup:
         _counter = PullUpCounter(userWeight: widget.userWeight);
         break;
     }

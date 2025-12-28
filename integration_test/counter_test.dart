@@ -42,7 +42,7 @@ void main() {
   testWidgets('Push Up Test', (tester) async {
     final poseData = await getPoseData(
       videoAssetPath: "assets/videos/pushup_test.mp4",
-      type: ExerciseType.pushup,
+      type: ExerciseType.Pushup,
     );
     PushUpCounter counter = PushUpCounter(userWeight: 50);
     for (var frame in poseData) {
@@ -58,7 +58,7 @@ void main() {
   testWidgets('Squat Test', (tester) async {
     final poseData = await getPoseData(
       videoAssetPath: "assets/videos/squat_test.mp4",
-      type: ExerciseType.squat,
+      type: ExerciseType.Squat,
     );
     SquatCounter counter = SquatCounter(userWeight: 50);
     for (var frame in poseData) {

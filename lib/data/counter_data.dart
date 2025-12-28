@@ -35,7 +35,7 @@ class Point3D {
 
 enum CounterState { up, down }
 enum ViewType { front, side, back, undetermined }
-enum ExerciseType { pushup, squat, lunge, bridge, pullup }
+enum ExerciseType { Pushup, Squat, Lunge, Bridge, Pullup }
 
 enum LungeLastStep {left, right}
 

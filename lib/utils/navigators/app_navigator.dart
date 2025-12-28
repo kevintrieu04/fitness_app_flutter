@@ -79,7 +79,7 @@ class AppNavigator {
     _openCounterAlertDialogue(
       context,
       "assets/videos/pushups/pushup_test.mp4",
-      ExerciseType.pushup,
+      ExerciseType.Pushup,
     );
   }
 
@@ -88,7 +88,7 @@ class AppNavigator {
       context,
       "assets/videos/squats/squat_360_test.mp4",
       //"assets/videos/back_view_test.mp4",
-      ExerciseType.squat,
+      ExerciseType.Squat,
     );
   }
 
@@ -96,7 +96,7 @@ class AppNavigator {
     _openCounterAlertDialogue(
       context,
       "assets/videos/lunges/lunge_front_test.mp4",
-      ExerciseType.lunge,
+      ExerciseType.Lunge,
     );
   }
 
@@ -104,7 +104,7 @@ class AppNavigator {
     _openCounterAlertDialogue(
       context,
       "assets/videos/bridges/bridge_test.mp4",
-      ExerciseType.bridge,
+      ExerciseType.Bridge,
     );
   }
 
@@ -112,7 +112,7 @@ class AppNavigator {
     _openCounterAlertDialogue(
       context,
       "assets/videos/pullups/pull_up_front_view.mp4",
-      ExerciseType.pullup,
+      ExerciseType.Pullup,
     );
   }
 

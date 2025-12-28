@@ -111,19 +111,19 @@ class _DailyExercisesPageState extends State<DailyExercisesPage> {
                 onPressed: () async {
                   String videoLink;
                   switch (_exerciseType) {
-                    case ExerciseType.pushup:
+                    case ExerciseType.Pushup:
                       videoLink = "assets/videos/pushups/pushup_test.mp4";
                       break;
-                    case ExerciseType.squat:
+                    case ExerciseType.Squat:
                       videoLink = "assets/videos/squats/squat_360_test.mp4";
                       break;
-                    case ExerciseType.lunge:
+                    case ExerciseType.Lunge:
                       videoLink = "assets/videos/lunges/lunge_front_test.mp4";
                       break;
-                    case ExerciseType.bridge:
+                    case ExerciseType.Bridge:
                       videoLink = "assets/videos/bridges/bridge_test.mp4";
                       break;
-                    case ExerciseType.pullup:
+                    case ExerciseType.Pullup:
                       videoLink =
                           "assets/videos/pullups/pull_up_front_view.mp4";
                       break;

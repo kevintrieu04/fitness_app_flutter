@@ -106,13 +106,13 @@ class _CameraPageState extends State<CameraPage> {
                   setState(() {
                     _poses = value;
                     if (_poses.isNotEmpty &&
-                        widget.exerciseType == ExerciseType.pushup) {
+                        widget.exerciseType == ExerciseType.Pushup) {
                       widget._processPushUp(value.first.landmarks);
                       if (widget._counter.count != count) {
                         count = widget._counter.count;
                       }
                     } else if (_poses.isNotEmpty &&
-                        widget.exerciseType == ExerciseType.squat) {
+                        widget.exerciseType == ExerciseType.Squat) {
                       widget._processSquat(value.first.landmarks);
                       if (widget._counter.count != count) {
                         count = widget._counter.count;
