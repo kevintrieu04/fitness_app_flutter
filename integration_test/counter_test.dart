@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:fitness_app/data/counter_data.dart';
+import 'package:fitness_app/core/data/counter_data.dart';
 import 'package:fitness_app/utils/counters/push_up_counter.dart';
 import 'package:fitness_app/utils/counters/squat_counter.dart';
 import 'package:flutter_test/flutter_test.dart';

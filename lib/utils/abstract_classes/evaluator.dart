@@ -1,4 +1,4 @@
-import '../../data/counter_data.dart';
+import '../../core/data/counter_data.dart';
 import 'detector.dart';
 
 abstract class Evaluator extends Detector {

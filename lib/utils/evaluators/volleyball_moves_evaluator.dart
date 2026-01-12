@@ -1,7 +1,9 @@
-import 'package:fitness_app/data/evaluator_data.dart';
 import 'package:fitness_app/utils/abstract_classes/evaluator.dart';
 import 'dart:developer';
-import 'package:fitness_app/data/counter_data.dart';
+
+import '../../core/data/counter_data.dart';
+import '../../core/data/evaluator_data.dart';
+
 
 class VolleyballMovesEvaluator extends Evaluator {
   VolleyballMovesEvaluator({required this.moveName});

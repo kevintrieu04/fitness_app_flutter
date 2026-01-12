@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import '../../data/counter_data.dart';
+import '../../core/data/counter_data.dart';
 
 abstract class Detector {
   // EMA smoothing factor

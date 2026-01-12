@@ -1,39 +1,181 @@
-import 'package:fitness_app/pages/counter_pages/new_counter_option_page.dart';
-import 'package:fitness_app/pages/new_user_profile_page.dart';
+import 'package:fitness_app/core/data/counter_data.dart';
+import 'package:fitness_app/features/counter/presentation/counter_test_page.dart';
+import 'package:fitness_app/features/daily/presentation/daily_test_page.dart';
+import 'package:fitness_app/features/home/presentation/new_counter_option_page.dart';
+import 'package:fitness_app/features/daily/presentation/daily_exercises_page.dart';
+import 'package:fitness_app/features/home/presentation/new_user_profile_page.dart';
+import 'package:fitness_app/features/estimator/presentation/calories_estimation_page.dart';
+import 'package:fitness_app/features/planner/presentation/exercise_planner_page.dart';
+import 'package:fitness_app/features/evaluator/presentation/image_evaluator_test_page.dart';
+import 'package:fitness_app/leaderboard_page.dart';
+import 'package:fitness_app/utils/navigators/router_notifier.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter/material.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../../pages/new_home_page.dart';
+import '../../core/data/evaluator_data.dart';
+import '../../features/auth/presentation/auth_viewmodel.dart';
+import '../../features/auth/presentation/login_page.dart';
+import '../../features/home/presentation/new_home_page.dart';
 import '../../widgets/bottom_nav.dart';
 
-GoRouter buildRouter() {
+part 'app_router.g.dart';
+
+@riverpod
+GoRouter buildRouter(Ref ref) {
+  final notifier = ref.watch(routerProvider);
+
   return GoRouter(
-    initialLocation: '/home',
+    initialLocation: '/login',
+    refreshListenable: notifier,
+    redirect: (context, state) {
+      // 1. Get the current AuthState
+      final authStateAsync = ref.read(authViewModelProvider);
+
+      // 2. Handle the different states of your Freezed class
+      return authStateAsync.maybeWhen(
+        data: (auth) => auth.when(
+          loading: () => null, // Stay put while internal loading
+          error: (_) => '/login',
+          authenticated: (_) {
+            // If logged in but on login page, go to home
+            if (state.matchedLocation == '/login') return '/home';
+            return null;
+          },
+          unauthenticated: () {
+            // If not logged in and not on login page, force login
+            if (state.matchedLocation != '/login') return '/login';
+            return null;
+          },
+        ),
+        // While Riverpod itself is loading the stream
+        loading: () => null,
+        orElse: () => null,
+      );
+    },
     routes: [
+      GoRoute(
+        path: '/login',
+        name: 'login',
+        builder: (context, state) => const LoginPage(),
+      ),
+      GoRoute(
+        path: '/home/estimator',
+        name: 'estimator',
+        builder: (context, state) => const CaloriesEstimationPage(),
+      ),
+      GoRoute(
+        path: '/home/planner',
+        name: 'planner',
+        builder: (context, state) => const ExercisePlannerPage(),
+      ),
+      GoRoute(
+        path: '/home/evaluator',
+        name: 'evaluator',
+        builder: (context, state) => const ImageEvaluatorTestPage(
+          evaluatorType: EvaluateExerciseType.volleyball,
+          moveType: Moves.passing,
+        ),
+      ),
+      GoRoute(
+        path: '/counter/pushup',
+        name: 'counter_test_pushup',
+        builder: (context, state) => const CounterTestPage(
+          link: "assets/videos/pushups/pushup_test.mp4",
+          exerciseType: ExerciseType.Pushup,
+        ),
+      ),
+      GoRoute(
+        path: '/counter/squat',
+        name: 'counter_test_squat',
+        builder: (context, state) => const CounterTestPage(
+          link: "assets/videos/squats/squat_test.mp4",
+          exerciseType: ExerciseType.Squat,
+        ),
+      ),
+      GoRoute(
+        path: '/counter/lunge',
+        name: 'counter_test_lunge',
+        builder: (context, state) => const CounterTestPage(
+          link: "assets/videos/lunges/lunge_test.mp4",
+          exerciseType: ExerciseType.Lunge,
+        ),
+      ),
+      GoRoute(
+        path: '/counter/bridge',
+        name: 'counter_test_bridge',
+        builder: (context, state) => const CounterTestPage(
+          link: "assets/videos/bridges/bridge_test.mp4",
+          exerciseType: ExerciseType.Bridge,
+        ),
+      ),
+      GoRoute(
+        path: '/counter/pullup',
+        name: 'counter_test_pullup',
+        builder: (context, state) => const CounterTestPage(
+          link: "assets/videos/pullups/pull_up_front_view.mp4",
+          exerciseType: ExerciseType.Pullup,
+        ),
+      ),
+      GoRoute(
+        path: '/home/daily',
+        name: 'daily',
+        builder: (context, state) => const DailyExercisesPage(),
+      ),
+      GoRoute(
+        path: '/daily/test',
+        name: 'daily_test',
+        builder: (context, state) {
+          final data = state.uri.queryParameters;
+          final link = data['link']!;
+          final exerciseType = ExerciseType.values.byName(
+            data['exerciseType']!,
+          );
+          final userWeight = double.parse(data['userWeight']!);
+          final targetReps = int.parse(data['targetReps']!);
+          final timeLimit = int.parse(data['timeLimit']!);
+          return DailyTestPage(
+            link: link,
+            exerciseType: exerciseType,
+            userWeight: userWeight,
+            targetReps: targetReps,
+            timeLimit: timeLimit,
+          );
+        },
+      ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, shell) => BottomNavScaffold(shell: shell),
         branches: [
-          StatefulShellBranch(routes: [
-            GoRoute(
-              path: '/home',
-              name: 'home',
-              builder: (context, state) => const HomePage(),
-            ),
-          ]),
-          StatefulShellBranch(routes: [
-            GoRoute(
-              path: '/counter',
-              name: 'counter',
-              builder: (context, state) => const CounterOptionPage(),
-            ),
-          ]),
-          StatefulShellBranch(routes: [
-            GoRoute(
-              path: '/profile',
-              builder: (context, state) => const UserProfilePage(),
-            ),
-          ])
-        ]
-      )
-    ]
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/home',
+                name: 'home',
+                builder: (context, state) => const HomePage(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/counter',
+                name: 'counter',
+                builder: (context, state) => const CounterOptionPage(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/profile',
+                name: 'profile',
+                builder: (context, state) => const UserProfilePage(),
+              ),
+            ],
+          ),
+        ],
+      ),
+    ],
   );
 }

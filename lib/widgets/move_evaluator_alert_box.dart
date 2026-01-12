@@ -1,6 +1,6 @@
-import 'package:fitness_app/data/evaluator_data.dart';
-import 'package:fitness_app/utils/navigators/app_navigator.dart';
 import 'package:flutter/material.dart';
+
+import '../core/data/evaluator_data.dart';
 
 class MoveEvaluatorAlertBox extends StatefulWidget {
   const MoveEvaluatorAlertBox({
@@ -53,12 +53,15 @@ class _MoveEvaluatorAlertBoxState extends State<MoveEvaluatorAlertBox> {
                   );
                 } else {
                   Navigator.of(context).pop();
+                  //todo: open evaluator test page
+                  /**
                   AppNavigator.onOpenEvaluatorTestPage(
                     context,
                     widget.link,
                     widget.type,
                     move!,
                   );
+                      */
                 }
               },
               child: const Text('OK'),

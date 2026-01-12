@@ -1,5 +1,4 @@
-import 'package:fitness_app/data/counter_data.dart';
-
+import '../../core/data/counter_data.dart';
 import '../abstract_classes/counter.dart';
 
 class SquatCounter extends Counter {

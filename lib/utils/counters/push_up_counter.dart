@@ -1,5 +1,6 @@
-import 'package:fitness_app/data/counter_data.dart';
 import 'package:fitness_app/utils/abstract_classes/counter.dart';
+
+import '../../core/data/counter_data.dart';
 
 class PushUpCounter extends Counter {
   bool isBackStraight = true; // New property for UI feedback
