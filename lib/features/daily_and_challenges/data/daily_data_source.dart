@@ -38,6 +38,22 @@ class DailyDataSource {
     }
   }
 
+  Future<String> getUserBestLevel() async {
+    if (user != null) {
+      return user!.data()!['bestLevel'];
+    } else {
+      return "Beginner";
+    }
+  }
+
+  Future<int> getUserBestTier() async {
+    if (user != null) {
+      return user!.data()!['bestTier'];
+    } else {
+      return 1;
+    }
+  }
+
   Future<void> updateDailyCalories(double calories) async {
     if (user != null) {
       await _db.collection('users').doc(_auth.currentUser!.uid).update({
@@ -57,7 +73,12 @@ class DailyDataSource {
     }
   }
 
-  Future<void> updateLevelAndTier(String level, int tier) async {
+  Future<void> updateLevelAndTier(
+    String level,
+    int tier,
+    String bestLevel,
+    int bestTier,
+  ) async {
     tier += 1;
     if (tier > 5) {
       tier = 1;
@@ -68,6 +89,26 @@ class DailyDataSource {
         'level': level,
         'tier': tier,
       });
+      if (_isBestLevel(level, bestLevel)) {
+        await _db.collection('users').doc(_auth.currentUser!.uid).update({
+          'bestLevel': level,
+          'bestTier': tier,
+        });
+      } else if (level == bestLevel && tier > bestTier) {
+        await _db.collection('users').doc(_auth.currentUser!.uid).update({
+          'bestTier': tier,
+        });
+      }
+    }
+  }
+
+  bool _isBestLevel(String level, String bestLevel) {
+    if (bestLevel == 'Beginner' && level == 'Intermediate') {
+      return true;
+    } else if (bestLevel == 'Intermediate' && level == 'Advanced') {
+      return true;
+    } else {
+      return false;
     }
   }
 

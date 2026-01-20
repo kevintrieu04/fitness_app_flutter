@@ -63,6 +63,7 @@ class UserProfilePage extends ConsumerWidget {
                   tier: data["tier"] ?? 0,
                   level: data["level"] ?? "N/A",
                   bestLevel: data["bestLevel"] ?? "N/A",
+                  bestTier: data["bestTier"] ?? 0,
                 ),
                 const SizedBox(height: DT.s6),
               ],
@@ -278,12 +279,14 @@ class _ChallengeSection extends StatelessWidget {
     required this.tier,
     required this.level,
     required this.bestLevel,
+    required this.bestTier,
   });
 
   final int streak;
   final int tier;
   final String level;
   final String bestLevel;
+  final int bestTier;
 
   @override
   Widget build(BuildContext context) {
@@ -310,7 +313,7 @@ class _ChallengeSection extends StatelessWidget {
         _ChallengeItem(
           icon: Icons.emoji_events_rounded,
           title: 'Best Level',
-          subtitle: bestLevel,
+          subtitle: "$bestLevel Tier $bestTier",
           onTap: () {},
         ),
       ],

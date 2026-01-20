@@ -1,14 +1,13 @@
 import 'dart:math';
 
-import 'package:fitness_app/firebase_options.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/data/counter_data.dart';
 import '../../../core/data/daily_data.dart';
+import '../../home/domain/user_repository.dart';
 import '../domain/daily_repository.dart';
-import 'daily_test_page.dart';
 
 class DailyExercisesPage extends ConsumerStatefulWidget {
   const DailyExercisesPage({super.key});
@@ -28,21 +27,13 @@ class _DailyExercisesPageState extends ConsumerState<DailyExercisesPage> {
   Widget _mainWidget = Container();
   String _level = "";
   int _tier = 0;
+  String _bestLevel = "";
+  int _bestTier = 0;
   double _userWeight = 0.0;
-
-  late final Future<void> _initFuture;
 
   @override
   void initState() {
     super.initState();
-    _initFuture = _init();
-  }
-
-  Future<void> _init() async {
-    final dailyRepo = ref.read(dailyRepositoryProvider);
-    _userWeight = await dailyRepo.getUserWeight();
-    _level = await dailyRepo.getUserLevel();
-    _tier = await dailyRepo.getUserTier();
     _exerciseType = _getRandomExerciseType();
   }
 
@@ -76,9 +67,10 @@ class _DailyExercisesPageState extends ConsumerState<DailyExercisesPage> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              "Your current level is ${_level} and your current tier is ${_tier}",
+              "Your current level is $_level and your current tier is $_tier",
             ),
             Text("We have set up the following exercise for you:"),
+            SizedBox(height: 10),
             SizedBox(height: 10),
             Text("Exercise Type: ${_exerciseType!.name}"),
             Text("Reps: $_reps"),
@@ -108,7 +100,7 @@ class _DailyExercisesPageState extends ConsumerState<DailyExercisesPage> {
                     break;
                 }
                 final value = await context.pushNamed(
-                  'daily_test',
+                  'challenge',
                   queryParameters: {
                     'link': videoLink,
                     'exerciseType': _exerciseType!.name,
@@ -117,8 +109,8 @@ class _DailyExercisesPageState extends ConsumerState<DailyExercisesPage> {
                     'timeLimit': _time.toString(),
                   },
                 );
-                if (value is bool) {
-                  _isPassed = value;
+                if (value is List) {
+                  _isPassed = value[0];
                 }
                 setState(() {
                   _hasDoneDaily = true;
@@ -136,13 +128,18 @@ class _DailyExercisesPageState extends ConsumerState<DailyExercisesPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text("You have passed the daily exercise!"),
+              Text("You have passed the challenge!"),
               Text("Congratulations!"),
               SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
                   final dailyRepo = ref.read(dailyRepositoryProvider);
-                  dailyRepo.updateLevelAndTier(_level, _tier);
+                  dailyRepo.updateLevelAndTier(
+                    _level,
+                    _tier,
+                    _bestLevel,
+                    _bestTier,
+                  );
                   dailyRepo.updateLastDoneDaily();
                   context.pop();
                 },
@@ -157,8 +154,8 @@ class _DailyExercisesPageState extends ConsumerState<DailyExercisesPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text("You have not passed the daily exercise!"),
-              Text("Please try again tomorrow"),
+              Text("You have not passed the challenge exercise!"),
+              Text("Please try again"),
               SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
@@ -177,28 +174,33 @@ class _DailyExercisesPageState extends ConsumerState<DailyExercisesPage> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<void>(
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Scaffold(
-            appBar: AppBar(title: Text('Daily Exercises Test')),
-            body: const Center(child: CircularProgressIndicator()),
-          );
-        }
-        if (snapshot.hasError) {
-          return Scaffold(
-            appBar: AppBar(title: Text('Daily Exercises Test')),
-            body: Center(child: Text('An error occurred: ${snapshot.error}')),
-          );
-        }
+    final profileAsync = ref.watch(profileDataProvider);
+
+    return profileAsync.when(
+      loading: () => Scaffold(
+        appBar: AppBar(title: const Text('Daily Exercises')),
+        body: const Center(child: CircularProgressIndicator()),
+      ),
+      error: (err, stack) => Scaffold(
+        appBar: AppBar(title: const Text('Daily Exercises')),
+        body: Center(child: Text('An error occurred: \$err')),
+      ),
+      data: (profileInfo) {
+        final data = profileInfo as Map<String, dynamic>? ?? {};
+        _level = data["level"] ?? "Beginner";
+        _tier = data["tier"] ?? 1;
+        _bestLevel = data["bestLevel"] ?? "Beginner";
+        _bestTier = data["bestTier"] ?? 1;
+        _userWeight = (data["startWeight"] ?? 0.0).toDouble();
+
         _setRepsAndTime();
         _buildWidget();
+
         return Scaffold(
-          appBar: AppBar(title: Text('Daily Exercises')),
+          appBar: AppBar(title: const Text('Daily Exercises')),
           body: _mainWidget,
         );
       },
-      future: _initFuture,
     );
   }
 }

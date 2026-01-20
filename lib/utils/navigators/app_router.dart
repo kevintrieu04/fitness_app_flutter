@@ -1,22 +1,23 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:fitness_app/features/add_challenge/presentation/add_challenge_page.dart';
 import 'package:fitness_app/core/data/counter_data.dart';
 import 'package:fitness_app/features/counter/presentation/counter_test_page.dart';
-import 'package:fitness_app/features/daily/presentation/daily_test_page.dart';
 import 'package:fitness_app/features/home/presentation/new_counter_option_page.dart';
-import 'package:fitness_app/features/daily/presentation/daily_exercises_page.dart';
 import 'package:fitness_app/features/home/presentation/new_user_profile_page.dart';
 import 'package:fitness_app/features/estimator/presentation/calories_estimation_page.dart';
 import 'package:fitness_app/features/planner/presentation/exercise_planner_page.dart';
 import 'package:fitness_app/features/evaluator/presentation/image_evaluator_test_page.dart';
-import 'package:fitness_app/leaderboard_page.dart';
+import 'package:fitness_app/features/leaderboard/presentation/leaderboard_page.dart';
 import 'package:fitness_app/utils/navigators/router_notifier.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../core/data/evaluator_data.dart';
 import '../../features/auth/presentation/auth_viewmodel.dart';
 import '../../features/auth/presentation/login_page.dart';
+import '../../features/daily_and_challenges/presentation/challenge_test_page.dart';
+import '../../features/daily_and_challenges/presentation/daily_exercises_page.dart';
 import '../../features/home/presentation/new_home_page.dart';
 import '../../widgets/bottom_nav.dart';
 
@@ -33,32 +34,54 @@ GoRouter buildRouter(Ref ref) {
       // 1. Get the current AuthState
       final authStateAsync = ref.read(authViewModelProvider);
 
+      String getErrorMessage(Object e) {
+        if (e is FirebaseAuthException) {
+          return e.message ?? 'An unknown authentication error occurred.';
+        }
+        return 'An unexpected error occurred.';
+      }
+
       // 2. Handle the different states of your Freezed class
-      return authStateAsync.maybeWhen(
+      return authStateAsync.when(
         data: (auth) => auth.when(
-          loading: () => null, // Stay put while internal loading
-          error: (_) => '/login',
+          loading: () => '/loading',
+          error: (e) =>
+              '/login?error=${Uri.encodeComponent(getErrorMessage(e))}',
           authenticated: (_) {
-            // If logged in but on login page, go to home
-            if (state.matchedLocation == '/login') return '/home';
+            // If logged in but on login or loading page, go to home
+            if (state.matchedLocation.startsWith('/login') ||
+                state.matchedLocation == '/loading') return '/home';
             return null;
           },
           unauthenticated: () {
             // If not logged in and not on login page, force login
-            if (state.matchedLocation != '/login') return '/login';
+            if (!state.matchedLocation.startsWith('/login')) return '/login';
             return null;
           },
         ),
         // While Riverpod itself is loading the stream
         loading: () => null,
-        orElse: () => null,
+        error: (e, _) =>
+            '/login?error=${Uri.encodeComponent(getErrorMessage(e))}',
       );
     },
     routes: [
       GoRoute(
         path: '/login',
         name: 'login',
-        builder: (context, state) => const LoginPage(),
+        builder: (context, state) {
+          final errorMessage = state.uri.queryParameters['error'];
+          return LoginPage(
+            isError: errorMessage != null,
+            errorMessage: errorMessage,
+          );
+        },
+      ),
+      GoRoute(
+        path: '/loading',
+        name: 'loading',
+        builder: (context, state) =>
+            const Scaffold(body: Center(child: CircularProgressIndicator())),
       ),
       GoRoute(
         path: '/home/estimator',
@@ -124,8 +147,8 @@ GoRouter buildRouter(Ref ref) {
         builder: (context, state) => const DailyExercisesPage(),
       ),
       GoRoute(
-        path: '/daily/test',
-        name: 'daily_test',
+        path: '/challenge',
+        name: 'challenge',
         builder: (context, state) {
           final data = state.uri.queryParameters;
           final link = data['link']!;
@@ -135,7 +158,7 @@ GoRouter buildRouter(Ref ref) {
           final userWeight = double.parse(data['userWeight']!);
           final targetReps = int.parse(data['targetReps']!);
           final timeLimit = int.parse(data['timeLimit']!);
-          return DailyTestPage(
+          return ChallengeTestPage(
             link: link,
             exerciseType: exerciseType,
             userWeight: userWeight,
@@ -143,6 +166,16 @@ GoRouter buildRouter(Ref ref) {
             timeLimit: timeLimit,
           );
         },
+      ),
+      GoRoute(
+        path: '/home/leaderboard',
+        name: 'leaderboard',
+        builder: (context, state) => const LeaderboardPage(),
+      ),
+      GoRoute(
+        path: '/home/add_challenge',
+        name: 'add_challenge',
+        builder: (context, state) => const AddChallengePage(),
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, shell) => BottomNavScaffold(shell: shell),

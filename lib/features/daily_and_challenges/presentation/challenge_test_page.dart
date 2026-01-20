@@ -20,8 +20,8 @@ import '../../../../utils/counters/push_up_counter.dart';
 import '../../../../utils/data_processors/video_processor.dart';
 import '../../../utils/counters/bridge_counter.dart';
 
-class DailyTestPage extends StatefulWidget {
-  const DailyTestPage({
+class ChallengeTestPage extends StatefulWidget {
+  const ChallengeTestPage({
     super.key,
     required this.link,
     required this.exerciseType,
@@ -37,10 +37,10 @@ class DailyTestPage extends StatefulWidget {
   final int timeLimit;
 
   @override
-  _DailyTestPageState createState() => _DailyTestPageState();
+  _ChallengeTestPageState createState() => _ChallengeTestPageState();
 }
 
-class _DailyTestPageState extends State<DailyTestPage> {
+class _ChallengeTestPageState extends State<ChallengeTestPage> {
   late ChewieController _chewieController;
   late VideoPlayerController _videoPlayerController;
   List<Map<String, dynamic>> _currentLandmarks = [];
@@ -272,7 +272,7 @@ class _DailyTestPageState extends State<DailyTestPage> {
                               if (_counter.count >= widget.targetReps) {
                                 _isPassed = true;
                               }
-                              context.pop(_isPassed);
+                              context.pop([_isPassed, _counter.count]);
                             },
                             child: Text("Return"),
                           ),

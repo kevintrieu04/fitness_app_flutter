@@ -1,11 +1,14 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../design/design_tokens.dart';
 import 'auth_viewmodel.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
-  const LoginPage({super.key});
+  const LoginPage({super.key, this.isError = false, this.errorMessage});
+
+  final bool isError;
+  final String? errorMessage;
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() {
@@ -22,6 +25,36 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   double _goalWeight = 0.0;
   String _name = 'Anonymous';
 
+  @override
+  void initState() {
+    super.initState();
+    // Use addPostFrameCallback to show the SnackBar after the build is complete.
+    if (widget.isError) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && widget.errorMessage != null) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(widget.errorMessage!)));
+        }
+      });
+    }
+  }
+
+  @override
+  void didUpdateWidget(LoginPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // If the widget is updated and an error is present (and wasn't before).
+    if (widget.isError && !oldWidget.isError) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && widget.errorMessage != null) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(widget.errorMessage!)));
+        }
+      });
+    }
+  }
+
   Future<void> _checkInfo(AuthViewModel authViewModel) async {
     final email = _emailController.text;
     final password = _passwordController.text;
@@ -34,24 +67,16 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         const SnackBar(content: Text('Password must be at least 6 characters')),
       );
     } else {
-      try {
-        if (_isSignUp) {
-          authViewModel.signUp(email, password, _name, _currentWeight, _goalWeight);
-        } else {
-          authViewModel.signIn(email, password);
-        }
-      } on FirebaseAuthException catch (e) {
-        if (e.code == 'user-not-found') {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('No user found for that email')),
-          );
-        } else if (e.code == 'wrong-password') {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Wrong password provided for that user'),
-            ),
-          );
-        }
+      if (_isSignUp) {
+        authViewModel.signUp(
+          email,
+          password,
+          _name,
+          _currentWeight,
+          _goalWeight,
+        );
+      } else {
+        authViewModel.signIn(email, password);
       }
     }
   }
@@ -61,7 +86,20 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     final authViewModel = ref.read(authViewModelProvider.notifier);
 
     return Scaffold(
-      appBar: AppBar(title: Text(_isSignUp ? 'Sign Up' : 'Login')),
+      backgroundColor: DT.bg,
+      appBar: AppBar(
+        backgroundColor: DT.bg,
+        elevation: 0,
+        title: Text(
+          _isSignUp ? 'Sign Up' : 'Login',
+          style: TextStyle(
+            color: DT.textPrimary,
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        centerTitle: true,
+      ),
       body: Center(
         child: Column(
           children: [

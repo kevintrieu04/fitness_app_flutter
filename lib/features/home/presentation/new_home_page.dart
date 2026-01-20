@@ -67,7 +67,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                   const SizedBox(height: DT.s1),
                   Text(
-                    "Today is ${DateFormat('d MM').format(DateTime.now())}",
+                    "Today is ${DateFormat('d/MM').format(DateTime.now())}",
                     style: const TextStyle(
                       fontSize: 14,
                       color: DT.textSecondary,
@@ -77,7 +77,9 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             GestureDetector(
-              onTap: () {},
+              onTap: () {
+                context.pushNamed('add_challenge');
+              },
               child: Container(
                 width: 40,
                 height: 40,
@@ -97,7 +99,9 @@ class _HomePageState extends State<HomePage> {
             ),
             const SizedBox(width: 10),
             GestureDetector(
-              onTap: () {},
+              onTap: () {
+                context.pushNamed('leaderboard');
+              },
               child: Container(
                 width: 40,
                 height: 40,

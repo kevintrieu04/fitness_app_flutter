@@ -11,7 +11,7 @@ abstract class DailyRepository {
 
   Future<int> getUserTier();
 
-  Future<void> updateLevelAndTier(String level, int tier);
+  Future<void> updateLevelAndTier(String level, int tier, String bestLevel, int bestTier);
 
   Future<void> updateLastDoneDaily();
 }
@@ -46,8 +46,8 @@ class DailyRepositoryImpl implements DailyRepository {
   }
 
   @override
-  Future<void> updateLevelAndTier(String level, int tier) {
-    return _dataSource.updateLevelAndTier(level, tier);
+  Future<void> updateLevelAndTier(String level, int tier, String bestLevel, int bestTier) {
+    return _dataSource.updateLevelAndTier(level, tier, bestLevel, bestTier);
   }
 
   @override
