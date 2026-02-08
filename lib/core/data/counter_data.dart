@@ -26,10 +26,16 @@ class Point3D {
       Point3D(x * scalar, y * scalar, z * scalar);
 
   // Dot product
-  double dot(Point3D other) => x * other.x + y * other.y + z * other.z;
+  double dot3D(Point3D other) => x * other.x + y * other.y + z * other.z;
 
   // Magnitude of the vector
-  double get distance => sqrt(x * x + y * y + z * z);
+  double get distance3D => sqrt(x * x + y * y + z * z);
+
+  // Dot product (2D)
+  double dot2D(Point3D other) => x * other.x + y * other.y;
+
+  // Magnitude of the vector (2D)
+  double get distance2D => sqrt(x * x + y * y);
 }
 
 enum CounterState { up, down }

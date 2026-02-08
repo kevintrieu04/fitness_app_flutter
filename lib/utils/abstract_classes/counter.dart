@@ -4,10 +4,13 @@ import 'detector.dart';
 abstract class Counter extends Detector {
   CounterState state = CounterState.up;
   ViewType viewType = ViewType.undetermined;
+  bool isUsing3D = false;
   final double userWeight;
   late final double caloriesPerRep;
   double caloriesBurnt = 0;
-  int count = 0;
+  int totalCount = 0;
+  int correctReps = 0;
+  Map<int, String> errors = <int, String>{};
 
   void updateFromLandmarks(List<Map<String, dynamic>> landmarks);
 

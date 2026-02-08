@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:fitness_app/utils/abstract_classes/counter.dart';
+import 'dart:async';
 
 import '../../core/data/counter_data.dart';
 
@@ -9,6 +10,9 @@ class PullUpCounter extends Counter {
   PullUpCounter({required super.userWeight}) {
     state = CounterState.down;
   }
+
+  Timer? _inactivityTimer;
+  ViewType? _targetViewType;
 
   bool _checkUpPosition(
     Map<dynamic, Point3D> landmarkPoints,
@@ -43,6 +47,10 @@ class PullUpCounter extends Counter {
   void updateFromLandmarks(List<Map<String, dynamic>> landmarks) {
     if (landmarks.isEmpty) {
       smoothedLandmarks.clear();
+      _inactivityTimer?.cancel();
+      _inactivityTimer = null;
+      _targetViewType = null;
+      isUsing3D = false;
       return;
     }
 
@@ -57,6 +65,26 @@ class PullUpCounter extends Counter {
       landmarkLikelihoods,
     );
     if (currentDetectedView != ViewType.undetermined) {
+      if (currentDetectedView != viewType) {
+        isUsing3D = true;
+        _targetViewType = currentDetectedView;
+        _inactivityTimer?.cancel();
+        _inactivityTimer = Timer.periodic(const Duration(milliseconds: 500), (timer) {
+          if (this.viewType == _targetViewType) {
+            isUsing3D = false;
+            timer.cancel();
+            _inactivityTimer = null;
+            _targetViewType = null;
+          }
+        });
+      } else {
+        if (isUsing3D) {
+          isUsing3D = false;
+        }
+        _inactivityTimer?.cancel();
+        _inactivityTimer = null;
+        _targetViewType = null;
+      }
       viewType = currentDetectedView;
     }
 
@@ -76,7 +104,7 @@ class PullUpCounter extends Counter {
       c = smoothedLandmarks['leftWrist'];
     }
     if (a != null && b != null && c != null) {
-      final angle = calculateAngle3D(a, b, c);
+      final angle = isUsing3D? calculateAngle3D(a, b, c) : calculateAngle2D(a, b, c);
       print("Angle: $angle");
       _update(angle, landmarkLikelihoods);
     }
@@ -100,7 +128,7 @@ class PullUpCounter extends Counter {
 
     if (state == CounterState.up && angle > maxAngle) {
       state = CounterState.down;
-      count++;
+      totalCount++;
       caloriesBurnt += caloriesPerRep;
     } else if (state == CounterState.down &&
         angle < minAngle &&

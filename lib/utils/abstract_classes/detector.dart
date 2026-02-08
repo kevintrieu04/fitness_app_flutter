@@ -16,9 +16,24 @@ abstract class Detector {
     final ab = a - b;
     final cb = c - b;
 
-    final dot = ab.dot(cb);
-    final abLen = ab.distance;
-    final cbLen = cb.distance;
+    final dot = ab.dot3D(cb);
+    final abLen = ab.distance3D;
+    final cbLen = cb.distance3D;
+
+    if (abLen == 0 || cbLen == 0) return 0; // Avoid division by zero
+
+    final cosine = dot / (abLen * cbLen);
+    final angle = acos(cosine.clamp(-1.0, 1.0)) * 180 / pi;
+    return angle;
+  }
+
+  double calculateAngle2D(Point3D a, Point3D b, Point3D c) {
+    final ab = a - b;
+    final cb = c - b;
+
+    final dot = ab.dot2D(cb);
+    final abLen = ab.distance2D;
+    final cbLen = cb.distance2D;
 
     if (abLen == 0 || cbLen == 0) return 0; // Avoid division by zero
 
@@ -34,6 +49,7 @@ abstract class Detector {
     };
     smoothedLandmarks = landmarkPoints;
 
+    /*
     for (var entry in landmarkPoints.entries) {
       final key = entry.key;
       final currentPoint = entry.value;
@@ -47,6 +63,7 @@ abstract class Detector {
             (smoothedPoint * (1.0 - smoothingFactor));
       }
     }
+     */
   }
 
   ViewType determineViewType(
@@ -68,15 +85,17 @@ abstract class Detector {
 
     // Side view check: large Z-difference between shoulders
     //print(leftShoulder.z - rightShoulder.z);
-    /*
+
     if ((leftShoulder.z - rightShoulder.z).abs() > 250) {
       // Threshold for side view
       return ViewType.side;
-    }*/
+    }
+    /*
     if ((leftShoulder.z < 0 && rightShoulder.z > 0) ||
         (leftShoulder.z > 0 && rightShoulder.z < 0)) {
       return ViewType.side;
     }
+     */
 
     // Front/Back view detection for squats
     final noseLandmark = landmarkPoints['nose'];
@@ -106,15 +125,15 @@ abstract class Detector {
     dynamic dLikelihood,
   ) {
     // A straight back in 3D space seems to be in the 120-190 degree range based on test data.
-    const minAngle = 100;
+    const minAngle = 165;
     const maxAngle = 190;
 
     if (a != null &&
         b != null &&
         c != null &&
         (aLikelihood ?? 0) > dLikelihood) {
-      final angle = calculateAngle3D(a, b, c);
-      //print("angle: angle");
+      final angle = calculateAngle2D(a, b, c);
+      //print("angle: $angle");
       if (angle < minAngle || angle > maxAngle) {
         return false;
       }
@@ -123,8 +142,8 @@ abstract class Detector {
         e != null &&
         f != null &&
         (dLikelihood ?? 0) > aLikelihood) {
-      final angle = calculateAngle3D(d, e, f);
-      //print("angle: angle");
+      final angle = calculateAngle2D(d, e, f);
+      //print("angle: $angle");
       if (angle < minAngle || angle > maxAngle) {
         return false;
       }

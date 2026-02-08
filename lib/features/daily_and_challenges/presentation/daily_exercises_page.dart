@@ -109,8 +109,8 @@ class _DailyExercisesPageState extends ConsumerState<DailyExercisesPage> {
                     'timeLimit': _time.toString(),
                   },
                 );
-                if (value is List) {
-                  _isPassed = value[0];
+                if (value is bool) {
+                  _isPassed = value;
                 }
                 setState(() {
                   _hasDoneDaily = true;

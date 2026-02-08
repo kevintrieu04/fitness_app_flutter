@@ -98,13 +98,21 @@ flutter:
     - assets/images/pullup.webp
     - assets/images/daily_animation.riv
     - assets/images/volleyball.webp
-    - assets/videos/input_video.mp4
-    - assets/videos/comparator_test_video.mp4
+    - assets/videos/private_videos/front_view.mp4
+    - assets/videos/private_videos/side_view.mp4
+    - assets/videos/private_videos/side_view_further.mp4
+    - assets/videos/private_videos/side_view_wrong.mp4
+    - assets/videos/private_videos/45_degree.mp4
+    - assets/videos/private_videos/squat_front_view.mp4
+    - assets/videos/private_videos/squat_side_view.mp4
+    - assets/videos/private_videos/lunge_front_view.mp4
+    - assets/videos/private_videos/lunge_side_view.mp4
+    - assets/videos/private_videos/glute_bridge.mp4
+    - assets/videos/private_videos/side_view.mp4
     - assets/videos/pushups/pushup_test.mp4
     - assets/videos/squats/squat_test.mp4
     - assets/videos/squats/squat_side_test.mp4
     - assets/videos/squats/squat_360_test.mp4
-    - assets/video_landmark/reference_pose.json
     - assets/videos/pushups/pushup_front_test.mp4
     - assets/videos/pushups/wrong_pushup_test.mp4
     - assets/videos/pushups/360_pushup.mp4

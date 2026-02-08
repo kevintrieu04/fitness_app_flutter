@@ -1,37 +1,54 @@
 import 'package:fitness_app/utils/abstract_classes/counter.dart';
+import 'dart:async';
 
 import '../../core/data/counter_data.dart';
 
 class PushUpCounter extends Counter {
   bool isBackStraight = true; // New property for UI feedback
   bool _isDown = false; // New internal state for counting readiness
+  Timer? _inactivityTimer; // Declare the timer
+  ViewType? _targetViewType; // Store the target view type for stabilization check
 
   PushUpCounter({required super.userWeight});
 
   void _update(double angle) {
-    double minAngle = 0;
-    double maxAngle = 0;
+    double minAngle = 90;
+    double maxAngle = 160;
 
-    if (viewType == ViewType.side) {
-      minAngle = 65; // Angle when arm is bent (down position)
-      maxAngle = 105; // Angle when arm is straight (up position)
-    } else if (viewType == ViewType.front) {
-      // For front and back views, angles might be larger
-      minAngle = 95; // Angle when arm is bent (down position)
-      maxAngle = 160; // Angle when arm is straight (up position)
-    } else {
-      minAngle = 120; // Angle when arm is bent (down position)
-      maxAngle = 160; // Angle when arm is straight (up position)
+
+    if (isUsing3D) {
+      if (viewType == ViewType.side) {
+        minAngle = 65; // Angle when arm is bent (down position)
+        maxAngle = 105; // Angle when arm is straight (up position)
+      } else if (viewType == ViewType.front) {
+        // For front and back views, angles might be larger
+        minAngle = 115; // Angle when arm is bent (down position)
+        maxAngle = 160; // Angle when arm is straight (up position)
+      } else {
+        minAngle = 120; // Angle when arm is bent (down position)
+        maxAngle = 160; // Angle when arm is straight (up position)
+      }
     }
 
-    if (state == CounterState.up && angle < minAngle && _isDown) {
+
+    if (!isBackStraight) {
+      errors.addAll({totalCount+1: "Not in straight position"});
+    }
+
+    if (state == CounterState.up && angle < minAngle) {
       state = CounterState.down;
-    } else if (!_isDown && state == CounterState.down && angle > maxAngle) {
+      if (!_isDown) {
+        errors.addAll({totalCount+1: "Not in down position"});
+      }
+    } else if (state == CounterState.down && angle > maxAngle) {
       state = CounterState.up;
-      count++;
+      totalCount++;
       caloriesBurnt += caloriesPerRep;
+      if (!errors.containsKey(totalCount)) {
+        correctReps++;
+      }
     }
-    //print("state: $state");
+    print("state: $state");
     print("angle: $angle");
   }
 
@@ -111,15 +128,17 @@ class PushUpCounter extends Counter {
 
     // Side view check: large Z-difference between shoulders
     //print(leftShoulder.z - rightShoulder.z);
-    /*
+
     if ((leftShoulder.z - rightShoulder.z).abs() > 250) {
       // Threshold for side view
       return ViewType.side;
-    }*/
+    }
+    /*
     if ((leftShoulder.z < 0 && rightShoulder.z > 0) ||
         (leftShoulder.z > 0 && rightShoulder.z < 0)) {
       return ViewType.side;
     }
+     */
 
     // Front/Back view check: small Z-difference between shoulders
     // Check ankles Z coordinates
@@ -159,6 +178,11 @@ class PushUpCounter extends Counter {
     if (landmarks.isEmpty) {
       _isDown = false; // Reset ready state if no landmarks
       smoothedLandmarks.clear(); // Clear smoothed data on reset
+      // Cancel timer if no landmarks are present
+      _inactivityTimer?.cancel();
+      _inactivityTimer = null;
+      _targetViewType = null;
+      isUsing3D = false; // Also reset isUsing3D
       return;
     }
 
@@ -175,8 +199,38 @@ class PushUpCounter extends Counter {
       landmarkLikelihoods,
     );
     if (currentDetectedView != ViewType.undetermined) {
-      viewType = currentDetectedView;
+      if (currentDetectedView != viewType) {
+        // View type has changed, so 3D processing might be needed
+        isUsing3D = true;
+        _targetViewType = currentDetectedView; // Store the new target view type
+
+        // Cancel any existing timer to avoid multiple timers running
+        _inactivityTimer?.cancel();
+
+        // Start a new timer to check for stabilization
+        _inactivityTimer = Timer.periodic(const Duration(milliseconds: 500), (timer) {
+          // Check if the current viewType has stabilized to the target view type
+          if (this.viewType == _targetViewType) {
+            isUsing3D = false;
+            timer.cancel();
+            _inactivityTimer = null;
+            _targetViewType = null; // Clear target once stabilized
+          }
+        });
+      } else {
+        // If currentDetectedView is the same as the current viewType,
+        // it means the view is stable. So, isUsing3D should be false.
+        // Also, cancel any running timer as it's no longer needed.
+        if (isUsing3D) { // Only set to false if it's currently true
+          isUsing3D = false;
+        }
+        _inactivityTimer?.cancel();
+        _inactivityTimer = null;
+        _targetViewType = null;
+      }
+      viewType = currentDetectedView; // Update the class member viewType
     }
+
     //print(viewType);
 
     // Check back straightness for all exercises, but mainly for pushups visually
@@ -189,14 +243,13 @@ class PushUpCounter extends Counter {
 
     // No longer explicitly setting viewType here, handled by _determineViewType
     // print("viewType: $viewType");
-    isBackStraight = checkBackStraightness(
-      smoothedLandmarks,
-      landmarkLikelihoods,
-    );
-    if (!isBackStraight) {
-      state = CounterState.up;
-      return;
+    if (viewType != ViewType.front) {
+      isBackStraight = checkBackStraightness(
+        smoothedLandmarks,
+        landmarkLikelihoods,
+      );
     }
+
     // Existing pushup angle calculation logic
     Point3D? a, b, c;
     if ((landmarkLikelihoods['leftShoulder'] ?? 0) <
@@ -214,7 +267,7 @@ class PushUpCounter extends Counter {
       c = smoothedLandmarks['leftWrist'];
     }
     if (a != null && b != null && c != null) {
-      final angle = calculateAngle3D(a, b, c);
+      final angle = isUsing3D? calculateAngle3D(a, b, c) : calculateAngle2D(a, b, c);
       _update(angle);
     }
   }

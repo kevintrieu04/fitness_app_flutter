@@ -166,8 +166,7 @@ app.*.symbols
 .gclient_previous_sync_commits
 
 # Videos with sensitive information
-**/assets/videos/comparator_test_video.mp4
-**/assets/videos/input_video.mp4
+**/assets/videos/private_videos/
 
 # Firebase options
 **/lib/firebase_options.dart

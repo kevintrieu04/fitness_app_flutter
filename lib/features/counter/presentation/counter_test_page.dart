@@ -229,12 +229,12 @@ class _CounterTestPageState extends ConsumerState<CounterTestPage> {
                 alignment: Alignment.bottomCenter,
                 child: Container(
                   padding: const EdgeInsets.all(16.0),
-                  color: Colors.black.withOpacity(0.5),
+                  color: Colors.black.withValues(alpha: 0.5),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        'Count: ${_counter.count}',
+                        'Count: ${_counter.correctReps}',
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 24,

@@ -1,4 +1,5 @@
 import 'package:fitness_app/utils/abstract_classes/counter.dart';
+import 'dart:async';
 
 import '../../core/data/counter_data.dart';
 
@@ -6,6 +7,8 @@ class LungeCounter extends Counter {
   LungeCounter({required super.userWeight});
 
   LungeLastStep _step = LungeLastStep.left;
+  Timer? _inactivityTimer;
+  ViewType? _targetViewType;
 
   bool _verifyStep(
     Map<dynamic, Point3D> smoothedLandmarks,
@@ -64,7 +67,6 @@ class LungeCounter extends Counter {
         return true;
       }
     }
-
     return false;
   }
 
@@ -72,6 +74,10 @@ class LungeCounter extends Counter {
   void updateFromLandmarks(List<Map<String, dynamic>> landmarks) {
     if (landmarks.isEmpty) {
       smoothedLandmarks.clear(); // Clear smoothed data on reset
+      _inactivityTimer?.cancel();
+      _inactivityTimer = null;
+      _targetViewType = null;
+      isUsing3D = false;
       return;
     }
 
@@ -86,6 +92,28 @@ class LungeCounter extends Counter {
       landmarkLikelihoods,
     );
     if (currentDetectedView != ViewType.undetermined) {
+      if (currentDetectedView != viewType) {
+        isUsing3D = true;
+        _targetViewType = currentDetectedView;
+        _inactivityTimer?.cancel();
+        _inactivityTimer = Timer.periodic(const Duration(milliseconds: 500), (
+          timer,
+        ) {
+          if (this.viewType == _targetViewType) {
+            isUsing3D = false;
+            timer.cancel();
+            _inactivityTimer = null;
+            _targetViewType = null;
+          }
+        });
+      } else {
+        if (isUsing3D) {
+          isUsing3D = false;
+        }
+        _inactivityTimer?.cancel();
+        _inactivityTimer = null;
+        _targetViewType = null;
+      }
       viewType = currentDetectedView;
     }
 
@@ -103,25 +131,33 @@ class LungeCounter extends Counter {
         leftHip != null &&
         leftKnee != null &&
         leftAnkle != null) {
-      final leftAngle = calculateAngle3D(leftHip, leftKnee, leftAnkle);
-      final rightAngle = calculateAngle3D(rightHip, rightKnee, rightAnkle);
+      final leftAngle = isUsing3D
+          ? calculateAngle3D(leftHip, leftKnee, leftAnkle)
+          : calculateAngle2D(leftHip, leftKnee, leftAnkle);
+      final rightAngle = isUsing3D
+          ? calculateAngle3D(rightHip, rightKnee, rightAnkle)
+          : calculateAngle2D(rightHip, rightKnee, rightAnkle);
       //print("Lunge Left Angle: $leftAngle");
       //print("Lunge Right Angle: $rightAngle");
       _update(leftAngle, rightAngle, landmarkLikelihoods);
     }
   }
 
-
   void _update(double leftAngle, rightAngle, Map<dynamic, dynamic> likelihood) {
-    double minAngle = 120;
-    double maxAngle = 165;
+    double minAngle = 90;
+    double maxAngle = 160;
 
-    if (viewType == ViewType.front) {
-      minAngle = 80;
-      maxAngle = 115;
-    } else if (viewType == ViewType.back) {
-      minAngle = 85;
-      maxAngle = 115;
+    if (isUsing3D) {
+      if (viewType == ViewType.side) {
+        double minAngle = 120;
+        double maxAngle = 165;
+      } else if (viewType == ViewType.front) {
+        minAngle = 80;
+        maxAngle = 115;
+      } else if (viewType == ViewType.back) {
+        minAngle = 85;
+        maxAngle = 115;
+      }
     }
 
     bool verify = _verifyStep(smoothedLandmarks, likelihood);
@@ -141,7 +177,7 @@ class LungeCounter extends Counter {
         leftAngle > maxAngle &&
         rightAngle > maxAngle) {
       state = CounterState.up;
-      count++;
+      totalCount++;
       caloriesBurnt += caloriesPerRep;
     }
     print("state: $state");

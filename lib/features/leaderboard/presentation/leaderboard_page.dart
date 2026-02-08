@@ -26,7 +26,8 @@ class _LeaderboardPageState extends ConsumerState<LeaderboardPage> {
   String _getVideoLink(ExerciseType selectedExerciseType) {
     switch (selectedExerciseType) {
       case ExerciseType.Pushup:
-        return "assets/videos/pushups/pushup_test.mp4";
+        return //"assets/videos/pushups/pushup_test.mp4";
+          "assets/videos/private_videos/side_view_further.mp4";
       case ExerciseType.Squat:
         return "assets/videos/squats/squat_360_test.mp4";
       case ExerciseType.Lunge:
@@ -155,16 +156,21 @@ class _LeaderboardPageState extends ConsumerState<LeaderboardPage> {
                           'timeLimit': (_selectedTime ?? 0).toString(),
                         },
                       );
-                      if (mounted && results is List && results.isNotEmpty && results[0] as bool) {
-                        final score = results.length > 1 ? results[1] as int : (_selectedReps ?? _selectedTime ?? 0);
-                        await repo.addScore(_selectedChallengeId!, score);
-                      }
-                      if (mounted && results is List &&!results[0]) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('You have not passed the challenge.'),
-                          ),
-                        );
+                      // Assuming results is a List [bool isPassed, int score]
+                      if (mounted && results is List && results.isNotEmpty) {
+                        final bool isPassed = results[0] as bool;
+                        final int score = results[1] as int;
+
+                        if (isPassed) {
+                          await repo.addScore(_selectedChallengeId!, score);
+                          // Optionally show a success message
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('You have not passed the challenge.'),
+                            ),
+                          );
+                        }
                       }
                     },
                     child: const Text("Join Challenge"),

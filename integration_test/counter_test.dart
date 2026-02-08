@@ -49,7 +49,7 @@ void main() {
       final landmarks = frame['landmarks'] as List<dynamic>;
       counter.updateFromLandmarks(List<Map<String, dynamic>>.from(landmarks));
     }
-    final count = counter.count;
+    final count = counter.totalCount;
 
     print("Push Up count: $count");
     expect(count, equals(11));
@@ -65,7 +65,7 @@ void main() {
       final landmarks = frame['landmarks'] as List<dynamic>;
       counter.updateFromLandmarks(List<Map<String, dynamic>>.from(landmarks));
     }
-    final count = counter.count;
+    final count = counter.totalCount;
 
     print("Squat count: $count");
     expect(count, equals(13));

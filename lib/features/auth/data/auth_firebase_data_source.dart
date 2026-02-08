@@ -49,7 +49,8 @@ class AuthDataSource {
       "startWeight": currentWeight,
       "goalWeight": goalWeight,
       "dailyCalories": 0,
-      "bestLevel": "Beginner Tier 1",
+      "bestLevel": "Beginner",
+      "bestTier": 1,
     });
   }
 

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fitness_app/features/add_challenge/presentation/add_challenge_page.dart';
 import 'package:fitness_app/core/data/counter_data.dart';
@@ -16,6 +18,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../core/data/evaluator_data.dart';
 import '../../features/auth/presentation/auth_viewmodel.dart';
 import '../../features/auth/presentation/login_page.dart';
+import '../../features/daily_and_challenges/presentation/challenge_result_page.dart';
 import '../../features/daily_and_challenges/presentation/challenge_test_page.dart';
 import '../../features/daily_and_challenges/presentation/daily_exercises_page.dart';
 import '../../features/home/presentation/new_home_page.dart';
@@ -43,26 +46,31 @@ GoRouter buildRouter(Ref ref) {
 
       // 2. Handle the different states of your Freezed class
       return authStateAsync.when(
-        data: (auth) => auth.when(
-          loading: () => '/loading',
-          error: (e) =>
+        data: (auth) =>
+            auth.when(
+              loading: () => '/loading',
+              error: (e) =>
               '/login?error=${Uri.encodeComponent(getErrorMessage(e))}',
-          authenticated: (_) {
-            // If logged in but on login or loading page, go to home
-            if (state.matchedLocation.startsWith('/login') ||
-                state.matchedLocation == '/loading') return '/home';
-            return null;
-          },
-          unauthenticated: () {
-            // If not logged in and not on login page, force login
-            if (!state.matchedLocation.startsWith('/login')) return '/login';
-            return null;
-          },
-        ),
+              authenticated: (_) {
+                // If logged in but on login or loading page, go to home
+                if (state.matchedLocation.startsWith('/login') ||
+                    state.matchedLocation == '/loading') {
+                  return '/home';
+                }
+                return null;
+              },
+              unauthenticated: () {
+                // If not logged in and not on login page, force login
+                if (!state.matchedLocation.startsWith('/login')) {
+                  return '/login';
+                }
+                return null;
+              },
+            ),
         // While Riverpod itself is loading the stream
         loading: () => null,
         error: (e, _) =>
-            '/login?error=${Uri.encodeComponent(getErrorMessage(e))}',
+        '/login?error=${Uri.encodeComponent(getErrorMessage(e))}',
       );
     },
     routes: [
@@ -81,7 +89,7 @@ GoRouter buildRouter(Ref ref) {
         path: '/loading',
         name: 'loading',
         builder: (context, state) =>
-            const Scaffold(body: Center(child: CircularProgressIndicator())),
+        const Scaffold(body: Center(child: CircularProgressIndicator())),
       ),
       GoRoute(
         path: '/home/estimator',
@@ -96,7 +104,8 @@ GoRouter buildRouter(Ref ref) {
       GoRoute(
         path: '/home/evaluator',
         name: 'evaluator',
-        builder: (context, state) => const ImageEvaluatorTestPage(
+        builder: (context, state) =>
+        const ImageEvaluatorTestPage(
           evaluatorType: EvaluateExerciseType.volleyball,
           moveType: Moves.passing,
         ),
@@ -104,23 +113,27 @@ GoRouter buildRouter(Ref ref) {
       GoRoute(
         path: '/counter/pushup',
         name: 'counter_test_pushup',
-        builder: (context, state) => const CounterTestPage(
-          link: "assets/videos/pushups/pushup_test.mp4",
+        builder: (context, state) =>
+        const CounterTestPage(
+          link: //"assets/videos/private_videos/side_view.mp4",
+          "assets/videos/pushups/360_pushup.mp4",
           exerciseType: ExerciseType.Pushup,
         ),
       ),
       GoRoute(
         path: '/counter/squat',
         name: 'counter_test_squat',
-        builder: (context, state) => const CounterTestPage(
-          link: "assets/videos/squats/squat_test.mp4",
+        builder: (context, state) =>
+        const CounterTestPage(
+          link: "assets/videos/squats/squat_360_test.mp4",
           exerciseType: ExerciseType.Squat,
         ),
       ),
       GoRoute(
         path: '/counter/lunge',
         name: 'counter_test_lunge',
-        builder: (context, state) => const CounterTestPage(
+        builder: (context, state) =>
+        const CounterTestPage(
           link: "assets/videos/lunges/lunge_test.mp4",
           exerciseType: ExerciseType.Lunge,
         ),
@@ -128,7 +141,8 @@ GoRouter buildRouter(Ref ref) {
       GoRoute(
         path: '/counter/bridge',
         name: 'counter_test_bridge',
-        builder: (context, state) => const CounterTestPage(
+        builder: (context, state) =>
+        const CounterTestPage(
           link: "assets/videos/bridges/bridge_test.mp4",
           exerciseType: ExerciseType.Bridge,
         ),
@@ -136,7 +150,8 @@ GoRouter buildRouter(Ref ref) {
       GoRoute(
         path: '/counter/pullup',
         name: 'counter_test_pullup',
-        builder: (context, state) => const CounterTestPage(
+        builder: (context, state) =>
+        const CounterTestPage(
           link: "assets/videos/pullups/pull_up_front_view.mp4",
           exerciseType: ExerciseType.Pullup,
         ),
@@ -158,12 +173,37 @@ GoRouter buildRouter(Ref ref) {
           final userWeight = double.parse(data['userWeight']!);
           final targetReps = int.parse(data['targetReps']!);
           final timeLimit = int.parse(data['timeLimit']!);
+          final isDaily = data['isDaily'] != null
+              ? bool.parse(data['isDaily']!)
+              : true;
           return ChallengeTestPage(
             link: link,
             exerciseType: exerciseType,
             userWeight: userWeight,
             targetReps: targetReps,
             timeLimit: timeLimit,
+            isDaily: isDaily,
+          );
+        },
+      ),
+      GoRoute(
+        path: '/challenge/result',
+        name: 'challenge_result',
+        builder: (context, state) {
+          final data = state.uri.queryParameters;
+          final errorsJson = data['errors']!;
+          final decodedErrors = jsonDecode(errorsJson) as Map<String, dynamic>;
+          final errors = decodedErrors.map((key, value) => MapEntry(int.parse(key), value.toString()));
+          final totalCount = int.parse(data['totalCount']!);
+          final correctReps = int.parse(data['correctReps']!);
+          final caloriesBurnt = double.parse(data['caloriesBurnt']!);
+          final targetReps = int.parse(data['targetReps']!);
+          return ChallengeResultPage(
+            errors: errors,
+            totalCount: totalCount,
+            correctReps: correctReps,
+            caloriesBurnt: caloriesBurnt,
+            targetReps: targetReps,
           );
         },
       ),

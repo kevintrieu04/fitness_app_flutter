@@ -86,12 +86,13 @@ class PosePainter extends CustomPainter {
       final torsoPaint = isBackStraight ? connectionPaint : errorPaint;
       connect("leftShoulder", "leftHip", paint: torsoPaint);
       connect("rightShoulder", "rightHip", paint: torsoPaint);
-      connect("leftHip", "rightHip");
 
-      connect("leftHip", "leftKnee");
-      connect("leftKnee", "leftAnkle");
-      connect("rightHip", "rightKnee");
-      connect("rightKnee", "rightAnkle");
+      connect("leftHip", "leftKnee", paint: torsoPaint);
+      connect("leftKnee", "leftAnkle", paint: torsoPaint);
+      connect("rightHip", "rightKnee", paint: torsoPaint);
+      connect("rightKnee", "rightAnkle" , paint: torsoPaint);
+
+      connect("leftHip", "rightHip");
 
       // Draw points
       for (final offset in joints.values) {

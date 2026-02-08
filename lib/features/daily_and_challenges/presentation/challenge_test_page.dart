@@ -28,6 +28,7 @@ class ChallengeTestPage extends StatefulWidget {
     required this.userWeight,
     required this.targetReps,
     required this.timeLimit,
+    this.isDaily = true
   });
 
   final String link;
@@ -35,6 +36,7 @@ class ChallengeTestPage extends StatefulWidget {
   final double userWeight;
   final int targetReps;
   final int timeLimit;
+  final bool isDaily;
 
   @override
   _ChallengeTestPageState createState() => _ChallengeTestPageState();
@@ -50,13 +52,13 @@ class _ChallengeTestPageState extends State<ChallengeTestPage> {
   int _countdownValue = 3;
   List<Map<String, dynamic>> poseData = [];
   bool _isVideoFinished = false;
-  bool _isLoading = true;
   bool _isPassed = false;
+  late final Future<void> _initFuture;
 
   @override
   void initState() {
     super.initState();
-    _init();
+    _initFuture = _init();
   }
 
   Future<void> _init() async {
@@ -123,7 +125,6 @@ class _ChallengeTestPageState extends State<ChallengeTestPage> {
       });
       if (_countdownValue == 0) {
         timer.cancel();
-        _isLoading = false;
         _chewieController.play();
       }
     });
@@ -219,88 +220,134 @@ class _ChallengeTestPageState extends State<ChallengeTestPage> {
   Widget build(BuildContext context) {
     final poses = _createPosesFromLandmarks(_currentLandmarks);
 
-    return Scaffold(
-      appBar: AppBar(title: Text('${widget.exerciseType.name} Test')),
-      body: _videoPlayerController.value.isInitialized
-          ? Stack(
-              children: [
-                Chewie(controller: _chewieController),
-                if (poses.isNotEmpty)
-                  CustomPaint(
-                    painter: PosePainter(
-                      poses: poses,
-                      imageSize: _videoPlayerController.value.size,
-                      isFrontCamera: false,
-                      isBackStraight: _counter is PushUpCounter
-                          ? _counter.isBackStraight
-                          : true,
-                    ),
-                    child: Container(),
+    return FutureBuilder<void>(
+      future: _initFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Scaffold(
+            appBar: AppBar(title: Text('${widget.exerciseType.name} Test')),
+            body: const Center(child: CircularProgressIndicator()),
+          );
+        }
+        if (snapshot.hasError) {
+          return Scaffold(
+            appBar: AppBar(title: Text('${widget.exerciseType.name} Test')),
+            body: Center(
+              child: Text('Error initializing video: ${snapshot.error}'),
+            ),
+          );
+        }
+
+        return Scaffold(
+          appBar: AppBar(title: Text('${widget.exerciseType.name} Test')),
+          body: _videoPlayerController.value.isInitialized
+              ? Stack(
+            children: [
+              Chewie(controller: _chewieController),
+              if (poses.isNotEmpty)
+                CustomPaint(
+                  painter: PosePainter(
+                    poses: poses,
+                    imageSize: _videoPlayerController.value.size,
+                    isFrontCamera: false,
+                    isBackStraight: _counter is PushUpCounter
+                        ? _counter.isBackStraight
+                        : true,
                   ),
-                Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Container(
-                    padding: const EdgeInsets.all(16.0),
-                    color: Colors.black.withValues(alpha: 0.5),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (_isLoading)
-                          Text("Waiting for the video to load...")
-                        else if (!_isVideoFinished) ...[
+                  child: Container(),
+                ),
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: Container(
+                  padding: const EdgeInsets.all(16.0),
+                  color: Colors.black.withValues(alpha: 0.5),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (!_isVideoFinished) ...[
+                        Text(
+                          'Count: ${_counter.correctReps}/${_counter.totalCount}',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        if (_counter.errors.isNotEmpty)
                           Text(
-                            'Count: ${_counter.count}',
+                            'Last Mistake: Rep ${_counter.errors.keys.last} - ${_counter.errors.values.last}',
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'Calories Burnt: ${_counter.caloriesBurnt.toStringAsFixed(2)} kCal',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                            ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Calories Burnt: ${_counter.caloriesBurnt.toStringAsFixed(2)} kCal',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
                           ),
-                        ] else ...[
-                          Text("Exercise Finished!"),
-                          ElevatedButton(
-                            onPressed: () {
-                              if (_counter.count >= widget.targetReps) {
-                                _isPassed = true;
-                              }
-                              context.pop([_isPassed, _counter.count]);
-                            },
-                            child: Text("Return"),
+                        ),
+                      ] else ...[
+                        Text(
+                          "Exercise Finished!",
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
                           ),
-                        ],
+                        ),
+                        ElevatedButton(
+                          onPressed: () async { // Made async
+                            if (_counter.totalCount >= widget.targetReps) {
+                              _isPassed = true;
+                            }
+                            // Always navigate to challenge_result and wait for its result
+                            final errorsJson = jsonEncode(_counter.errors.map((key, value) => MapEntry(key.toString(), value)));
+                            final resultFromChallengeResult = await context.pushNamed('challenge_result', queryParameters: {
+                              'errors': errorsJson,
+                              'totalCount': _counter.totalCount.toString(),
+                              'correctReps': _counter.correctReps.toString(),
+                              'caloriesBurnt': _counter.caloriesBurnt.toString(),
+                              'targetReps': widget.targetReps.toString(), // Pass targetReps
+                            });
+
+                            // Pop back to LeaderboardPage with the result from ChallengeResultPage
+                            context.pop(resultFromChallengeResult);
+                          },
+                          child: Text("Return"),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+              if (_countdownValue > 0)
+                Center(
+                  child: Text(
+                    '$_countdownValue',
+                    style: TextStyle(
+                      fontSize: 100,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      shadows: [
+                        Shadow(
+                          blurRadius: 10.0,
+                          color: Colors.black.withValues(alpha: 0.5),
+                        ),
                       ],
                     ),
                   ),
                 ),
-                if (_countdownValue > 0)
-                  Center(
-                    child: Text(
-                      '$_countdownValue',
-                      style: TextStyle(
-                        fontSize: 100,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                        shadows: [
-                          Shadow(
-                            blurRadius: 10.0,
-                            color: Colors.black.withValues(alpha: 0.5),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-              ],
-            )
-          : const Center(child: CircularProgressIndicator()),
+            ],
+          )
+              : const Center(child: CircularProgressIndicator()),
+        );
+      }
     );
   }
 }
