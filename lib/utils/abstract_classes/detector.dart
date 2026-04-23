@@ -125,7 +125,7 @@ abstract class Detector {
     dynamic dLikelihood,
   ) {
     // A straight back in 3D space seems to be in the 120-190 degree range based on test data.
-    const minAngle = 165;
+    const minAngle = 160;
     const maxAngle = 190;
 
     if (a != null &&

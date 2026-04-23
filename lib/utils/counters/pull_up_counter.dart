@@ -5,7 +5,6 @@ import 'dart:async';
 
 import '../../core/data/counter_data.dart';
 
-
 class PullUpCounter extends Counter {
   PullUpCounter({required super.userWeight}) {
     state = CounterState.down;
@@ -13,6 +12,7 @@ class PullUpCounter extends Counter {
 
   Timer? _inactivityTimer;
   ViewType? _targetViewType;
+  bool isUp = true;
 
   bool _checkUpPosition(
     Map<dynamic, Point3D> landmarkPoints,
@@ -69,7 +69,9 @@ class PullUpCounter extends Counter {
         isUsing3D = true;
         _targetViewType = currentDetectedView;
         _inactivityTimer?.cancel();
-        _inactivityTimer = Timer.periodic(const Duration(milliseconds: 500), (timer) {
+        _inactivityTimer = Timer.periodic(const Duration(milliseconds: 500), (
+          timer,
+        ) {
           if (this.viewType == _targetViewType) {
             isUsing3D = false;
             timer.cancel();
@@ -104,7 +106,9 @@ class PullUpCounter extends Counter {
       c = smoothedLandmarks['leftWrist'];
     }
     if (a != null && b != null && c != null) {
-      final angle = isUsing3D? calculateAngle3D(a, b, c) : calculateAngle2D(a, b, c);
+      final angle = isUsing3D
+          ? calculateAngle3D(a, b, c)
+          : calculateAngle2D(a, b, c);
       print("Angle: $angle");
       _update(angle, landmarkLikelihoods);
     }
@@ -112,27 +116,40 @@ class PullUpCounter extends Counter {
   }
 
   void _update(double angle, Map<dynamic, dynamic> likelihood) {
-    double minAngle = 0;
-    double maxAngle = 0;
+    double minAngle = 65;
+    double maxAngle = 130;
 
     if (viewType == ViewType.side) {
-      minAngle = 70;
-      maxAngle = 125;
-    } else if (viewType == ViewType.front) {
-      minAngle = 135;
-      maxAngle = 165;
-    } else if (viewType == ViewType.back) {
-      minAngle = 125;
-      maxAngle = 155;
+      minAngle = 85;
+      maxAngle = 160;
+    }
+
+    if (isUsing3D) {
+      if (viewType == ViewType.side) {
+        minAngle = 70;
+        maxAngle = 125;
+      } else if (viewType == ViewType.front) {
+        minAngle = 135;
+        maxAngle = 165;
+      } else if (viewType == ViewType.back) {
+        minAngle = 125;
+        maxAngle = 155;
+      }
     }
 
     if (state == CounterState.up && angle > maxAngle) {
       state = CounterState.down;
       totalCount++;
-      caloriesBurnt += caloriesPerRep;
-    } else if (state == CounterState.down &&
-        angle < minAngle &&
-        _checkUpPosition(smoothedLandmarks, likelihood)) {
+      isUp = true;
+      if (!errors.containsKey(totalCount)) {
+        correctReps++;
+        caloriesBurnt += caloriesPerRep;
+      }
+    } else if (state == CounterState.down && angle < minAngle) {
+      isUp = _checkUpPosition(smoothedLandmarks, likelihood);
+      if (!isUp) {
+        errors.addAll({totalCount + 1: "Not in correct position"});
+      }
       state = CounterState.up;
     }
   }

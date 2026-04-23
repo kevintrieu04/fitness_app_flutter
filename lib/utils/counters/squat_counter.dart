@@ -20,10 +20,12 @@ class SquatCounter extends Counter {
 
     bool isLeft =
         (likelihood['leftKnee'] ?? 0) > (likelihood['rightKnee'] ?? 0) &&
-        (likelihood['leftFootIndex'] ?? 0) > (likelihood['rightFootIndex'] ?? 0);
+        (likelihood['leftFootIndex'] ?? 0) >
+            (likelihood['rightFootIndex'] ?? 0);
     bool isRight =
         (likelihood['leftKnee'] ?? 0) < (likelihood['rightKnee'] ?? 0) &&
-        (likelihood['leftFootIndex'] ?? 0) < (likelihood['rightFootIndex'] ?? 0);
+        (likelihood['leftFootIndex'] ?? 0) <
+            (likelihood['rightFootIndex'] ?? 0);
 
     if (leftKnee != null &&
         rightKnee != null &&
@@ -32,18 +34,18 @@ class SquatCounter extends Counter {
       //print("leftKnee.z: ${leftKnee.z}");
       //print("leftFootIndex.z: ${leftFootIndex.z}");
       if (viewType == ViewType.front) {
-        return leftKnee.z <= leftFootIndex.z;
+        return leftFootIndex.z >= leftKnee.z;
       } else if (viewType == ViewType.back) {
         return rightKnee.z >= rightFootIndex.z;
       } else if (viewType == ViewType.side) {
         if (isLeft) {
-          //print("leftKnee.x: ${leftKnee.x}");
-          //print("leftFootIndex.x: ${leftFootIndex.x}");
+          print("leftKnee.x: ${leftKnee.x}");
+          print("leftFootIndex.x: ${leftFootIndex.x}");
           return leftKnee.x >= leftFootIndex.x;
         } else if (isRight) {
-          //print("rightKnee.x: ${rightKnee.x}");
-          //print("rightFootIndex.x: ${rightFootIndex.x}");
-          return rightKnee.x <= rightFootIndex.x;
+          print("rightKnee.x: ${rightKnee.x}");
+          print("rightFootIndex.x: ${rightFootIndex.x}");
+          return rightFootIndex.x >= rightKnee.x;
         }
       }
     }
@@ -77,7 +79,9 @@ class SquatCounter extends Counter {
         isUsing3D = true;
         _targetViewType = currentDetectedView;
         _inactivityTimer?.cancel();
-        _inactivityTimer = Timer.periodic(const Duration(milliseconds: 500), (timer) {
+        _inactivityTimer = Timer.periodic(const Duration(milliseconds: 500), (
+          timer,
+        ) {
           if (this.viewType == _targetViewType) {
             isUsing3D = false;
             timer.cancel();
@@ -95,10 +99,6 @@ class SquatCounter extends Counter {
       }
       viewType = currentDetectedView;
     }
-    isKneesCorrect = _checkKneesPosition(
-      smoothedLandmarks,
-      landmarkLikelihoods,
-    );
 
     Point3D? a, b, c;
     if ((landmarkLikelihoods['leftHip'] ?? 0) < 0.5 ||
@@ -113,17 +113,18 @@ class SquatCounter extends Counter {
       c = smoothedLandmarks['leftAnkle'];
     }
     if (a != null && b != null && c != null) {
-      final angle = isUsing3D? calculateAngle3D(a, b, c) : calculateAngle2D(a, b, c);
+      final angle = isUsing3D
+          ? calculateAngle3D(a, b, c)
+          : calculateAngle2D(a, b, c);
       print("Squat Angle: $angle");
-      _update(angle);
+      _update(angle, landmarkLikelihoods);
     }
   }
 
-  void _update(double angle) {
-    double minAngle = 90;
+  void _update(double angle, Map<dynamic, dynamic> landmarkLikelihoods) {
+    double minAngle = 110;
     double maxAngle = 165;
 
-    
     if (isUsing3D) {
       if (viewType == ViewType.front) {
         minAngle = 30;
@@ -136,20 +137,26 @@ class SquatCounter extends Counter {
         maxAngle = 155;
       }
     }
-     
 
     if (state == CounterState.up && angle < minAngle) {
       //print("Squat Down");
       state = CounterState.down;
-      /*
-      if (!isKneesCorrect) {
-        errors.addAll({totalCount+1: "Not in correct knee position"});
+
+      if (!isUsing3D) {
+        isKneesCorrect = _checkKneesPosition(
+          smoothedLandmarks,
+          landmarkLikelihoods,
+        );
       }
-       */
+
+      if (!isKneesCorrect) {
+        errors.addAll({totalCount + 1: "Not in correct knee position"});
+      }
     } else if (state == CounterState.down && angle > maxAngle) {
       //print("Squat Up");
       state = CounterState.up;
       totalCount++;
+      isKneesCorrect = true;
       if (!errors.containsKey(totalCount)) {
         correctReps++;
         caloriesBurnt += caloriesPerRep;

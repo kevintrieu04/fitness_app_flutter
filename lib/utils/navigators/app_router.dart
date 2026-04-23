@@ -115,8 +115,8 @@ GoRouter buildRouter(Ref ref) {
         name: 'counter_test_pushup',
         builder: (context, state) =>
         const CounterTestPage(
-          link: //"assets/videos/private_videos/side_view.mp4",
-          "assets/videos/pushups/360_pushup.mp4",
+          link: //"assets/videos/private_videos/front_view.mp4",
+          "assets/videos/pushups/static/push_up_static_10_wrong.mp4",
           exerciseType: ExerciseType.Pushup,
         ),
       ),
@@ -125,7 +125,8 @@ GoRouter buildRouter(Ref ref) {
         name: 'counter_test_squat',
         builder: (context, state) =>
         const CounterTestPage(
-          link: "assets/videos/squats/squat_360_test.mp4",
+          link: "assets/videos/squats/static/squat_test_static_12.mp4",
+          //"assets/videos/private_videos/squat_side_view.mp4",
           exerciseType: ExerciseType.Squat,
         ),
       ),
@@ -134,7 +135,7 @@ GoRouter buildRouter(Ref ref) {
         name: 'counter_test_lunge',
         builder: (context, state) =>
         const CounterTestPage(
-          link: "assets/videos/lunges/lunge_test.mp4",
+          link: "assets/videos/lunges/static/lunge_test_static_10.mp4",
           exerciseType: ExerciseType.Lunge,
         ),
       ),
@@ -143,7 +144,7 @@ GoRouter buildRouter(Ref ref) {
         name: 'counter_test_bridge',
         builder: (context, state) =>
         const CounterTestPage(
-          link: "assets/videos/bridges/bridge_test.mp4",
+          link: "assets/videos/bridges/static/bridge_test_static.mp4",
           exerciseType: ExerciseType.Bridge,
         ),
       ),
@@ -152,7 +153,7 @@ GoRouter buildRouter(Ref ref) {
         name: 'counter_test_pullup',
         builder: (context, state) =>
         const CounterTestPage(
-          link: "assets/videos/pullups/pull_up_front_view.mp4",
+          link: "assets/videos/pullups/static/pull_up_static_10.mp4",
           exerciseType: ExerciseType.Pullup,
         ),
       ),

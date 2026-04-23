@@ -5,7 +5,7 @@ import 'dart:io';
 import 'package:fitness_app/utils/counters/lunge_counter.dart';
 import 'package:fitness_app/utils/counters/pull_up_counter.dart';
 import 'package:fitness_app/utils/counters/squat_counter.dart';
-import 'package:fitness_app/utils/data_processors/pose_painter.dart';
+import 'package:fitness_app/utils/painters/pose_painter.dart';
 import 'package:flutter/material.dart';
 import 'package:chewie/chewie.dart';
 import 'package:go_router/go_router.dart';
@@ -216,6 +216,15 @@ class _ChallengeTestPageState extends State<ChallengeTestPage> {
     return [Pose(landmarks: landmarks)];
   }
 
+  bool get _counterCondition {
+    if (_counter is PushUpCounter) return _counter.isBackStraight;
+    if (_counter is SquatCounter) return _counter.isKneesCorrect;
+    if (_counter is LungeCounter) return _counter.verify;
+    if (_counter is BridgeCounter) return _counter.isBackStraight;
+    if (_counter is PullUpCounter) return _counter.isUp;
+    return true;
+  }
+
   @override
   Widget build(BuildContext context) {
     final poses = _createPosesFromLandmarks(_currentLandmarks);
@@ -250,9 +259,8 @@ class _ChallengeTestPageState extends State<ChallengeTestPage> {
                     poses: poses,
                     imageSize: _videoPlayerController.value.size,
                     isFrontCamera: false,
-                    isBackStraight: _counter is PushUpCounter
-                        ? _counter.isBackStraight
-                        : true,
+                    condition: _counterCondition,
+                    exerciseType: widget.exerciseType,
                   ),
                   child: Container(),
                 ),

@@ -6,6 +6,7 @@ import '../../core/data/counter_data.dart';
 class LungeCounter extends Counter {
   LungeCounter({required super.userWeight});
 
+  bool verify = true;
   LungeLastStep _step = LungeLastStep.left;
   Timer? _inactivityTimer;
   ViewType? _targetViewType;
@@ -15,9 +16,9 @@ class LungeCounter extends Counter {
     Map<dynamic, dynamic> likelihood,
   ) {
     bool isLeft =
-        (likelihood['leftShoulder'] ?? 0) > (likelihood['rightShoulder'] ?? 0);
+        smoothedLandmarks['leftShoulder']!.z < smoothedLandmarks['rightShoulder']!.z;
     bool isRight =
-        (likelihood['leftShoulder'] ?? 0) < (likelihood['rightShoulder'] ?? 0);
+        smoothedLandmarks['leftShoulder']!.z > smoothedLandmarks['rightShoulder']!.z;
 
     if (viewType == ViewType.side) {
       //print("Left x: ${smoothedLandmarks['leftFootIndex']!.x}");
@@ -149,8 +150,8 @@ class LungeCounter extends Counter {
 
     if (isUsing3D) {
       if (viewType == ViewType.side) {
-        double minAngle = 120;
-        double maxAngle = 165;
+        minAngle = 120;
+        maxAngle = 165;
       } else if (viewType == ViewType.front) {
         minAngle = 80;
         maxAngle = 115;
@@ -160,25 +161,30 @@ class LungeCounter extends Counter {
       }
     }
 
-    bool verify = _verifyStep(smoothedLandmarks, likelihood);
     //print("verify: $verify");
     //print("_step: $_step");
     if (state == CounterState.up &&
-        leftAngle < minAngle &&
-        rightAngle < minAngle &&
-        verify) {
+        (leftAngle < minAngle || rightAngle < minAngle)) {
       state = CounterState.down;
+      verify = _verifyStep(smoothedLandmarks, likelihood);
+      if (!verify) {
+        errors.addAll({totalCount + 1: "Not in correct step"});
+        return;
+      }
       if (_step == LungeLastStep.left) {
         _step = LungeLastStep.right;
       } else if (_step == LungeLastStep.right) {
         _step = LungeLastStep.left;
       }
     } else if (state == CounterState.down &&
-        leftAngle > maxAngle &&
-        rightAngle > maxAngle) {
+        (leftAngle > maxAngle && rightAngle > maxAngle)) {
       state = CounterState.up;
       totalCount++;
-      caloriesBurnt += caloriesPerRep;
+      if (!errors.containsKey(totalCount)) {
+        correctReps++;
+        print("correctReps: $correctReps");
+        caloriesBurnt += caloriesPerRep;
+      }
     }
     print("state: $state");
   }

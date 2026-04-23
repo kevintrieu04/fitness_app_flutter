@@ -5,7 +5,7 @@ import 'dart:io';
 import 'package:fitness_app/utils/counters/lunge_counter.dart';
 import 'package:fitness_app/utils/counters/pull_up_counter.dart';
 import 'package:fitness_app/utils/counters/squat_counter.dart';
-import 'package:fitness_app/utils/data_processors/pose_painter.dart';
+import 'package:fitness_app/utils/painters/pose_painter.dart';
 import 'package:flutter/material.dart';
 import 'package:chewie/chewie.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -188,6 +188,15 @@ class _CounterTestPageState extends ConsumerState<CounterTestPage> {
     return [Pose(landmarks: landmarks)];
   }
 
+  bool get _counterCondition {
+    if (_counter is PushUpCounter) return _counter.isBackStraight;
+    if (_counter is SquatCounter) return _counter.isKneesCorrect;
+    if (_counter is LungeCounter) return _counter.verify;
+    if (_counter is BridgeCounter) return _counter.isBackStraight;
+    if (_counter is PullUpCounter) return _counter.isUp;
+    return true;
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<void>(
@@ -220,8 +229,8 @@ class _CounterTestPageState extends ConsumerState<CounterTestPage> {
                     poses: poses,
                     imageSize: _videoPlayerController.value.size,
                     isFrontCamera: false,
-                    isBackStraight:
-                        _counter is PushUpCounter ? _counter.isBackStraight : true,
+                    condition: _counterCondition,
+                    exerciseType: widget.exerciseType,
                   ),
                   child: Container(),
                 ),

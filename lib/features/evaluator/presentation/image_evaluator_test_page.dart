@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:fitness_app/core/data/counter_data.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_pose_detection/google_mlkit_pose_detection.dart';
 import 'package:image_picker/image_picker.dart';
@@ -8,7 +9,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 
 import '../../../core/data/evaluator_data.dart';
-import '../../../utils/data_processors/pose_painter.dart';
+import '../../../utils/painters/pose_painter.dart';
 import '../../../utils/abstract_classes/evaluator.dart';
 import '../../../utils/evaluators/volleyball_moves_evaluator.dart';
 import '../../../widgets/image_picker_button.dart';
@@ -163,7 +164,8 @@ class _ImageEvaluatorTestPageState extends State<ImageEvaluatorTestPage> {
                     poses: poses,
                     imageSize: Size(250, 300),
                     isFrontCamera: true,
-                    isBackStraight: true,
+                    condition: true,
+                    exerciseType: null,
                   ),
                   child: Container(),
                 ),
@@ -172,7 +174,7 @@ class _ImageEvaluatorTestPageState extends State<ImageEvaluatorTestPage> {
           SizedBox(height: 50),
           if (_logs.isNotEmpty)
             for (final mistake in _logs) Text(mistake),
-          Text("Mistake count: ${_evaluator.mistakeCount}")
+          Text("Mistake count: ${_evaluator.mistakeCount}"),
         ],
       ),
     );

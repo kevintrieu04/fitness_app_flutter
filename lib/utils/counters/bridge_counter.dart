@@ -12,23 +12,29 @@ class BridgeCounter extends Counter {
   ViewType? _targetViewType;
 
   void _update(double angle) {
-    double minAngle = 90;
-    double maxAngle = 160;
+    double minAngle = 140;
+    double maxAngle = 165;
 
     if (isUsing3D) {
-      double minAngle = 125;
-      double maxAngle = 150;
+      minAngle = 125;
+      maxAngle = 150;
     }
+
+    print(angle);
 
     if (state == CounterState.up && angle < minAngle) {
       state = CounterState.down;
       totalCount++;
-      caloriesBurnt += caloriesPerRep;
-    } else if (state == CounterState.down &&
-        angle > maxAngle &&
-        isBackStraight) {
+      isBackStraight = true;
+      if (!errors.containsKey(totalCount)) {
+        correctReps++;
+        caloriesBurnt += caloriesPerRep;
+      }
+    } else if (state == CounterState.down && angle > maxAngle) {
       state = CounterState.up;
+      if (angle >= 190) isBackStraight = false;
     }
+    //print("State: $state");
   }
 
   @override
@@ -57,7 +63,9 @@ class BridgeCounter extends Counter {
         isUsing3D = true;
         _targetViewType = currentDetectedView;
         _inactivityTimer?.cancel();
-        _inactivityTimer = Timer.periodic(const Duration(milliseconds: 500), (timer) {
+        _inactivityTimer = Timer.periodic(const Duration(milliseconds: 500), (
+          timer,
+        ) {
           if (this.viewType == _targetViewType) {
             isUsing3D = false;
             timer.cancel();
@@ -76,11 +84,6 @@ class BridgeCounter extends Counter {
       viewType = currentDetectedView;
     }
 
-    isBackStraight = checkBackStraightness(
-      smoothedLandmarks,
-      landmarkLikelihoods,
-    );
-
     Point3D? a, b, c;
     if ((landmarkLikelihoods['leftShoulder'] ?? 0) <
             (landmarkLikelihoods['rightShoulder'] ?? 0) ||
@@ -97,8 +100,9 @@ class BridgeCounter extends Counter {
       c = smoothedLandmarks['leftKnee'];
     }
     if (a != null && b != null && c != null) {
-      final angle = isUsing3D? calculateAngle3D(a, b, c) : calculateAngle2D(a, b, c);
-      print("angle: $angle");
+      final angle = isUsing3D
+          ? calculateAngle3D(a, b, c)
+          : calculateAngle2D(a, b, c);
       _update(angle);
     }
   }
