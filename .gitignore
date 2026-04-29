@@ -12,7 +12,6 @@
 .buildlog/
 .history
 .svn/
-packages
 
 # As packages are no longer pinned, we use a lockfile for testing locally.
 # When unpinning packages, Using lockfiles ensures that failures in PRs are
