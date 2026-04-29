@@ -1,4 +1,4 @@
-import 'package:camera/camera.dart';
+//import 'package:camera/camera.dart';
 import 'package:fitness_app/utils/data_processors/process_camera.dart';
 import 'package:fitness_app/utils/navigators/app_router.dart';
 import 'package:flutter/material.dart';
@@ -9,11 +9,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'design/theme.dart';
 import 'firebase_options.dart';
 
-late List<CameraDescription> cameras;
+//late List<CameraDescription> cameras;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  cameras = await availableCameras();
+  //cameras = await availableCameras();
   await RiveNative.init();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
@@ -34,7 +34,7 @@ class _FitnessAppState extends ConsumerState<FitnessApp> {
 
   @override
   void dispose() {
-    controller.dispose();
+    //controller.dispose();
     super.dispose();
   }
 
