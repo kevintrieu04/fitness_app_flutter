@@ -157,9 +157,6 @@ class _HomePageState extends State<HomePage> {
                 ],
               ),
             ),
-            const SizedBox(height: DT.s4),
-            const SizedBox(height: 100),
-            _SubFunctionsCard(),
           ],
         ),
       ),
@@ -473,71 +470,4 @@ class _ExercisesCard extends StatelessWidget {
   }
 }
 
-class _SubFunctionsCard extends StatelessWidget {
-  const _SubFunctionsCard({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    // TODO: implement build
-    return Container(
-      padding: EdgeInsets.all(16),
-      decoration: BoxDecoration(borderRadius: BorderRadius.circular(16)),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          _SubFunctionIcon(
-            icon: Icons.camera_alt,
-            color: DT.socialPink,
-            onTap: () => context.pushNamed('estimator'),
-          ),
-          _SubFunctionIcon(
-            icon: Icons.play_circle_outline,
-            color: DT.socialRed,
-            onTap: () => context.pushNamed('evaluator'),
-          ),
-          _SubFunctionIcon(
-            icon: Icons.chat_bubble_outline,
-            color: DT.socialBlue,
-            onTap: () => context.pushNamed('planner'),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _SubFunctionIcon extends StatelessWidget {
-  final IconData icon;
-  final Color color;
-  final VoidCallback onTap;
-
-  const _SubFunctionIcon({
-    super.key,
-    required this.icon,
-    required this.color,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        width: 40,
-        height: 40,
-        decoration: BoxDecoration(
-          color: DT.bgWhite,
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: DT.shadowMedium,
-              blurRadius: 10,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Icon(icon, color: color, size: 20),
-      ),
-    );
-  }
-}

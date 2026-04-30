@@ -7,16 +7,11 @@ import 'package:fitness_app/features/counter/presentation/counter_test_option_pa
 import 'package:fitness_app/features/counter/presentation/counter_test_page.dart';
 import 'package:fitness_app/features/home/presentation/new_counter_option_page.dart';
 import 'package:fitness_app/features/home/presentation/new_user_profile_page.dart';
-import 'package:fitness_app/features/estimator/presentation/calories_estimation_page.dart';
-import 'package:fitness_app/features/planner/presentation/exercise_planner_page.dart';
-import 'package:fitness_app/features/evaluator/presentation/image_evaluator_test_page.dart';
 import 'package:fitness_app/features/leaderboard/presentation/leaderboard_page.dart';
 import 'package:fitness_app/utils/navigators/router_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-
-import '../../core/data/evaluator_data.dart';
 import '../../features/auth/presentation/auth_viewmodel.dart';
 import '../../features/auth/presentation/login_page.dart';
 import '../../features/daily_and_challenges/presentation/challenge_result_page.dart';
@@ -90,24 +85,6 @@ GoRouter buildRouter(Ref ref) {
         name: 'loading',
         builder: (context, state) =>
             const Scaffold(body: Center(child: CircularProgressIndicator())),
-      ),
-      GoRoute(
-        path: '/home/estimator',
-        name: 'estimator',
-        builder: (context, state) => const CaloriesEstimationPage(),
-      ),
-      GoRoute(
-        path: '/home/planner',
-        name: 'planner',
-        builder: (context, state) => const ExercisePlannerPage(),
-      ),
-      GoRoute(
-        path: '/home/evaluator',
-        name: 'evaluator',
-        builder: (context, state) => const ImageEvaluatorTestPage(
-          evaluatorType: EvaluateExerciseType.volleyball,
-          moveType: Moves.passing,
-        ),
       ),
       GoRoute(
         path: '/counter/test',

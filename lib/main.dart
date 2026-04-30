@@ -1,5 +1,3 @@
-//import 'package:camera/camera.dart';
-import 'package:fitness_app/utils/data_processors/process_camera.dart';
 import 'package:fitness_app/utils/navigators/app_router.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';

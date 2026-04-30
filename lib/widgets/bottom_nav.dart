@@ -1,7 +1,6 @@
 import 'package:fitness_app/design/design_tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:hive_ce/hive.dart';
 
 class BottomNavScaffold extends StatelessWidget {
   final StatefulNavigationShell shell;
