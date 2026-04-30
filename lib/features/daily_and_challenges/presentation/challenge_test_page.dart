@@ -218,7 +218,7 @@ class _ChallengeTestPageState extends State<ChallengeTestPage> {
 
   bool get _counterCondition {
     if (_counter is PushUpCounter) return _counter.isBackStraight;
-    if (_counter is SquatCounter) return _counter.isKneesCorrect;
+    if (_counter is SquatCounter) return _counter.areHipsCorrect;
     if (_counter is LungeCounter) return _counter.verify;
     if (_counter is BridgeCounter) return _counter.isBackStraight;
     if (_counter is PullUpCounter) return _counter.isUp;

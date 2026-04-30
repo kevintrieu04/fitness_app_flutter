@@ -5,48 +5,46 @@ import 'dart:async';
 class SquatCounter extends Counter {
   SquatCounter({required super.userWeight});
 
-  bool isKneesCorrect = true;
+  bool areHipsCorrect = true;
   Timer? _inactivityTimer;
   ViewType? _targetViewType;
 
-  bool _checkKneesPosition(
+  bool _checkHipsAngle(
     Map<dynamic, Point3D> smoothedLandmarks,
     Map<dynamic, dynamic> likelihood,
   ) {
+    final leftShoulder = smoothedLandmarks['leftShoulder'];
+    final rightShoulder = smoothedLandmarks['rightShoulder'];
+    final leftHip = smoothedLandmarks['leftHip'];
+    final rightHip = smoothedLandmarks['rightHip'];
     final leftKnee = smoothedLandmarks['leftKnee'];
     final rightKnee = smoothedLandmarks['rightKnee'];
-    final leftFootIndex = smoothedLandmarks['leftFootIndex'];
-    final rightFootIndex = smoothedLandmarks['rightFootIndex'];
 
     bool isLeft =
-        (likelihood['leftKnee'] ?? 0) > (likelihood['rightKnee'] ?? 0) &&
-        (likelihood['leftFootIndex'] ?? 0) >
-            (likelihood['rightFootIndex'] ?? 0);
+        (likelihood['leftShoulder'] ?? 0) > (likelihood['rightShoulder'] ?? 0);
     bool isRight =
-        (likelihood['leftKnee'] ?? 0) < (likelihood['rightKnee'] ?? 0) &&
-        (likelihood['leftFootIndex'] ?? 0) <
-            (likelihood['rightFootIndex'] ?? 0);
+        (likelihood['leftShoulder'] ?? 0) < (likelihood['rightShoulder'] ?? 0);
 
     if (leftKnee != null &&
         rightKnee != null &&
-        leftFootIndex != null &&
-        rightFootIndex != null) {
-      //print("leftKnee.z: ${leftKnee.z}");
-      //print("leftFootIndex.z: ${leftFootIndex.z}");
-      if (viewType == ViewType.front) {
-        return leftFootIndex.z >= leftKnee.z;
-      } else if (viewType == ViewType.back) {
-        return rightKnee.z >= rightFootIndex.z;
-      } else if (viewType == ViewType.side) {
+        leftHip != null &&
+        rightHip != null &&
+        leftShoulder != null &&
+        rightShoulder != null) {
+      if (viewType == ViewType.side) {
         if (isLeft) {
-          print("leftKnee.x: ${leftKnee.x}");
-          print("leftFootIndex.x: ${leftFootIndex.x}");
-          return leftKnee.x >= leftFootIndex.x;
+          return isUsing3D
+              ? calculateAngle3D(leftShoulder, leftHip, leftKnee) < 130
+              : calculateAngle2D(leftShoulder, leftHip, leftKnee) < 130;
         } else if (isRight) {
-          print("rightKnee.x: ${rightKnee.x}");
-          print("rightFootIndex.x: ${rightFootIndex.x}");
-          return rightFootIndex.x >= rightKnee.x;
+          return isUsing3D
+              ? calculateAngle3D(rightShoulder, rightHip, rightKnee) < 130
+              : calculateAngle2D(rightShoulder, rightHip, rightKnee) < 130;
         }
+      } else {
+        return isUsing3D
+            ? calculateAngle3D(rightShoulder, rightHip, rightKnee) < 130
+            : calculateAngle2D(rightShoulder, rightHip, rightKnee) < 130;
       }
     }
     return false;
@@ -143,20 +141,20 @@ class SquatCounter extends Counter {
       state = CounterState.down;
 
       if (!isUsing3D) {
-        isKneesCorrect = _checkKneesPosition(
+        areHipsCorrect = _checkHipsAngle(
           smoothedLandmarks,
           landmarkLikelihoods,
         );
       }
 
-      if (!isKneesCorrect) {
+      if (!areHipsCorrect) {
         errors.addAll({totalCount + 1: "Not in correct knee position"});
       }
     } else if (state == CounterState.down && angle > maxAngle) {
       //print("Squat Up");
       state = CounterState.up;
       totalCount++;
-      isKneesCorrect = true;
+      areHipsCorrect = true;
       if (!errors.containsKey(totalCount)) {
         correctReps++;
         caloriesBurnt += caloriesPerRep;
