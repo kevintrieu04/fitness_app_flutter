@@ -26,10 +26,12 @@ class CounterTestPage extends ConsumerStatefulWidget {
     super.key,
     required this.link,
     required this.exerciseType,
+    this.isAsset = false
   });
 
   final String link;
   final ExerciseType exerciseType;
+  final bool isAsset;
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() {
@@ -134,7 +136,7 @@ class _CounterTestPageState extends ConsumerState<CounterTestPage> {
     // Preprocess video to get pose data
     final processor = VideoProcessor(
       sourcePath: videoAssetPath,
-      isAsset: true,
+      isAsset: widget.isAsset,
       frameRate: 5, // Matching the video_player_test_page
     );
     await processor.process();

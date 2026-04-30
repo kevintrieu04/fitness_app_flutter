@@ -81,19 +81,19 @@ class _DailyExercisesPageState extends ConsumerState<DailyExercisesPage> {
                 String videoLink;
                 switch (_exerciseType) {
                   case ExerciseType.Pushup:
-                    videoLink = "assets/videos/pushups/pushup_test.mp4";
+                    videoLink = "assets/videos/pushups/static/push_up_static.mp4";
                     break;
                   case ExerciseType.Squat:
-                    videoLink = "assets/videos/squats/squat_360_test.mp4";
+                    videoLink = "assets/videos/squats/static/squat_test_static.mp4";
                     break;
                   case ExerciseType.Lunge:
-                    videoLink = "assets/videos/lunges/lunge_front_test.mp4";
+                    videoLink = "assets/videos/lunges/static/lunge_test_static_10.mp4";
                     break;
                   case ExerciseType.Bridge:
-                    videoLink = "assets/videos/bridges/bridge_test.mp4";
+                    videoLink = "assets/videos/bridges/static/bridge_test_static_5.mp4";
                     break;
                   case ExerciseType.Pullup:
-                    videoLink = "assets/videos/pullups/pull_up_front_view.mp4";
+                    videoLink = "assets/videos/pullups/static/pull_up_static_10.mp4";
                     break;
                   default:
                     videoLink = "";

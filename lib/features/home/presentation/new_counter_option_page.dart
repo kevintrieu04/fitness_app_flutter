@@ -1,10 +1,8 @@
 import 'package:fitness_app/design/design_tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 
 import '../../../core/data/counter_data.dart';
-
 
 class CounterOptionPage extends StatelessWidget {
   const CounterOptionPage({super.key});
@@ -55,47 +53,42 @@ class CounterOptionPage extends StatelessWidget {
                   "Pushups are one of the crucial exercises in working out. The following texts are just to test overflow",
               imageLink: "assets/images/push_up.jpg",
               color: DT.cardYellow,
-              onTap: () => context.pushNamed("counter_test_pushup"),
               importance: "Medium",
             ),
             const SizedBox(height: DT.s4),
             _ExercisesCard(
               exerciseType: ExerciseType.Squat,
               shortDescription:
-              "Squat are one of the crucial exercises in working out. The following texts are just to test overflow",
+                  "Squat are one of the crucial exercises in working out. The following texts are just to test overflow",
               imageLink: "assets/images/squat.jpg",
               color: DT.cardBlue,
-              onTap: () => context.pushNamed("counter_test_squat"),
               importance: "Easy",
             ),
             const SizedBox(height: DT.s4),
             _ExercisesCard(
               exerciseType: ExerciseType.Lunge,
               shortDescription:
-              "Lunge are one of the crucial exercises in working out. The following texts are just to test overflow",
+                  "Lunge are one of the crucial exercises in working out. The following texts are just to test overflow",
               imageLink: "assets/images/lunge.webp",
               color: DT.cardRed,
-              onTap: () => context.pushNamed("counter_test_lunge"),
               importance: "Hard",
             ),
             const SizedBox(height: DT.s4),
             _ExercisesCard(
               exerciseType: ExerciseType.Bridge,
               shortDescription:
-              "Glute Bridge are one of the crucial exercises in working out. The following texts are just to test overflow",
+                  "Glute Bridge are one of the crucial exercises in working out. The following texts are just to test overflow",
               imageLink: "assets/images/bridge.webp",
               color: DT.cardOrange,
-              onTap: () => context.pushNamed("counter_test_bridge"),
               importance: "Medium",
             ),
             const SizedBox(height: DT.s4),
             _ExercisesCard(
               exerciseType: ExerciseType.Pullup,
               shortDescription:
-              "Pullup are one of the crucial exercises in working out. The following texts are just to test overflow",
+                  "Pullup are one of the crucial exercises in working out. The following texts are just to test overflow",
               imageLink: "assets/images/pullup.webp",
               color: DT.cardTeal,
-              onTap: () => context.pushNamed("counter_test_pullup"),
               importance: "Easy",
             ),
             const SizedBox(height: DT.s4),
@@ -112,7 +105,6 @@ class _ExercisesCard extends StatelessWidget {
   final String shortDescription;
   final String imageLink;
   final Color color;
-  final VoidCallback onTap;
 
   const _ExercisesCard({
     super.key,
@@ -120,14 +112,18 @@ class _ExercisesCard extends StatelessWidget {
     required this.shortDescription,
     required this.imageLink,
     required this.color,
-    required this.onTap,
     required this.importance,
   });
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: onTap,
+      onTap: () {
+        context.pushNamed(
+          "counter_test_options",
+          queryParameters: {"exerciseType": exerciseType.name},
+        );
+      },
       child: Container(
         padding: EdgeInsets.all(DT.s5),
         decoration: BoxDecoration(
