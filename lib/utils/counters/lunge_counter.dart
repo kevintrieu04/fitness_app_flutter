@@ -74,7 +74,7 @@ class LungeCounter extends Counter {
   @override
   void updateFromLandmarks(List<Map<String, dynamic>> landmarks) {
     if (landmarks.isEmpty) {
-      smoothedLandmarks.clear(); // Clear smoothed data on reset
+      convertedLandmarks.clear(); // Clear smoothed data on reset
       _inactivityTimer?.cancel();
       _inactivityTimer = null;
       _targetViewType = null;
@@ -82,14 +82,14 @@ class LungeCounter extends Counter {
       return;
     }
 
-    applySmoothing(landmarks);
+    convertLandmarks(landmarks);
 
     final landmarkLikelihoods = {
       for (var lm in landmarks) lm['type']: lm['inFrameLikelihood'],
     };
 
     final currentDetectedView = determineViewType(
-      smoothedLandmarks,
+      convertedLandmarks,
       landmarkLikelihoods,
     );
     if (currentDetectedView != ViewType.undetermined) {
@@ -119,12 +119,12 @@ class LungeCounter extends Counter {
     }
 
     // Existing lunge angle calculation logic
-    Point3D? rightHip = smoothedLandmarks['rightHip'];
-    Point3D? rightKnee = smoothedLandmarks['rightKnee'];
-    Point3D? rightAnkle = smoothedLandmarks['rightAnkle'];
-    Point3D? leftHip = smoothedLandmarks['leftHip'];
-    Point3D? leftKnee = smoothedLandmarks['leftKnee'];
-    Point3D? leftAnkle = smoothedLandmarks['leftAnkle'];
+    Point3D? rightHip = convertedLandmarks['rightHip'];
+    Point3D? rightKnee = convertedLandmarks['rightKnee'];
+    Point3D? rightAnkle = convertedLandmarks['rightAnkle'];
+    Point3D? leftHip = convertedLandmarks['leftHip'];
+    Point3D? leftKnee = convertedLandmarks['leftKnee'];
+    Point3D? leftAnkle = convertedLandmarks['leftAnkle'];
 
     if (rightHip != null &&
         rightKnee != null &&
@@ -166,7 +166,7 @@ class LungeCounter extends Counter {
     if (state == CounterState.up &&
         (leftAngle < minAngle || rightAngle < minAngle)) {
       state = CounterState.down;
-      verify = _verifyStep(smoothedLandmarks, likelihood);
+      verify = _verifyStep(convertedLandmarks, likelihood);
       if (!verify) {
         errors.addAll({totalCount + 1: "Not in correct step"});
         return;

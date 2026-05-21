@@ -3,13 +3,7 @@ import 'dart:math';
 import '../../core/data/counter_data.dart';
 
 abstract class Detector {
-  // EMA smoothing factor
-  final double _smoothingFactor = 0.2;
-
-  get smoothingFactor => _smoothingFactor;
-
-  // Smoothed landmarks
-  Map<dynamic, Point3D> smoothedLandmarks = {};
+  Map<dynamic, Point3D> convertedLandmarks = {};
 
   // Calculates angle between three 3D points.
   double calculateAngle3D(Point3D a, Point3D b, Point3D c) {
@@ -42,28 +36,12 @@ abstract class Detector {
     return angle;
   }
 
-  void applySmoothing(List<Map<String, dynamic>> landmarks) {
+  void convertLandmarks(List<Map<String, dynamic>> landmarks) {
     final landmarkPoints = {
       for (var lm in landmarks)
         lm['type']: Point3D(lm['x'], lm['y'], lm['z'] ?? 0.0),
     };
-    smoothedLandmarks = landmarkPoints;
-
-    /*
-    for (var entry in landmarkPoints.entries) {
-      final key = entry.key;
-      final currentPoint = entry.value;
-      final smoothedPoint = smoothedLandmarks[key];
-
-      if (smoothedPoint == null) {
-        smoothedLandmarks[key] = currentPoint;
-      } else {
-        smoothedLandmarks[key] =
-            (currentPoint * smoothingFactor) +
-            (smoothedPoint * (1.0 - smoothingFactor));
-      }
-    }
-     */
+    convertedLandmarks = landmarkPoints;
   }
 
   ViewType determineViewType(

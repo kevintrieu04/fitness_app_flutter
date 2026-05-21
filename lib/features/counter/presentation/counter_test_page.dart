@@ -120,7 +120,11 @@ class _CounterTestPageState extends ConsumerState<CounterTestPage> {
   }
 
   Future<void> _initVideo() async {
-    _videoPlayerController = VideoPlayerController.asset(widget.link);
+    if (widget.isAsset) {
+      _videoPlayerController = VideoPlayerController.asset(widget.link);
+    } else {
+      _videoPlayerController = VideoPlayerController.file(File(widget.link));
+    }
     await _videoPlayerController.initialize();
     _chewieController = ChewieController(
       videoPlayerController: _videoPlayerController,

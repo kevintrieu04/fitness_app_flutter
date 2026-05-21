@@ -53,7 +53,7 @@ class SquatCounter extends Counter {
   @override
   void updateFromLandmarks(List<Map<String, dynamic>> landmarks) {
     if (landmarks.isEmpty) {
-      smoothedLandmarks.clear(); // Clear smoothed data on reset
+      convertedLandmarks.clear(); // Clear smoothed data on reset
       _inactivityTimer?.cancel();
       _inactivityTimer = null;
       _targetViewType = null;
@@ -61,14 +61,14 @@ class SquatCounter extends Counter {
       return;
     }
 
-    applySmoothing(landmarks);
+    convertLandmarks(landmarks);
 
     final landmarkLikelihoods = {
       for (var lm in landmarks) lm['type']: lm['inFrameLikelihood'],
     };
 
     final currentDetectedView = determineViewType(
-      smoothedLandmarks,
+      convertedLandmarks,
       landmarkLikelihoods,
     );
     print(currentDetectedView);
@@ -102,13 +102,13 @@ class SquatCounter extends Counter {
     if ((landmarkLikelihoods['leftHip'] ?? 0) < 0.5 ||
         (landmarkLikelihoods['leftKnee'] ?? 0) < 0.5 ||
         (landmarkLikelihoods['leftAnkle'] ?? 0) < 0.5) {
-      a = smoothedLandmarks['rightHip'];
-      b = smoothedLandmarks['rightKnee'];
-      c = smoothedLandmarks['rightAnkle'];
+      a = convertedLandmarks['rightHip'];
+      b = convertedLandmarks['rightKnee'];
+      c = convertedLandmarks['rightAnkle'];
     } else {
-      a = smoothedLandmarks['leftHip'];
-      b = smoothedLandmarks['leftKnee'];
-      c = smoothedLandmarks['leftAnkle'];
+      a = convertedLandmarks['leftHip'];
+      b = convertedLandmarks['leftKnee'];
+      c = convertedLandmarks['leftAnkle'];
     }
     if (a != null && b != null && c != null) {
       final angle = isUsing3D
@@ -142,7 +142,7 @@ class SquatCounter extends Counter {
 
       if (!isUsing3D) {
         areHipsCorrect = _checkHipsAngle(
-          smoothedLandmarks,
+          convertedLandmarks,
           landmarkLikelihoods,
         );
       }

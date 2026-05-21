@@ -41,7 +41,7 @@ class VideoProcessor extends Processor {
   /// Run FFmpeg to extract frames
   Future<void> _extractFrames() async {
     final outputPath = p.join(outputDir.path, "frame_%04d.jpg");
-    final cmd = "-i $_localVideoPath -vf fps=$frameRate $outputPath";
+    final cmd = "-i \"$_localVideoPath\" -vf fps=$frameRate \"$outputPath\"";
     await FFmpegKit.execute(cmd);
   }
 

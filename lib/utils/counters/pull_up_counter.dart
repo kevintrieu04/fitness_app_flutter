@@ -46,7 +46,7 @@ class PullUpCounter extends Counter {
   @override
   void updateFromLandmarks(List<Map<String, dynamic>> landmarks) {
     if (landmarks.isEmpty) {
-      smoothedLandmarks.clear();
+      convertedLandmarks.clear();
       _inactivityTimer?.cancel();
       _inactivityTimer = null;
       _targetViewType = null;
@@ -54,14 +54,14 @@ class PullUpCounter extends Counter {
       return;
     }
 
-    applySmoothing(landmarks);
+    convertLandmarks(landmarks);
 
     final landmarkLikelihoods = {
       for (var lm in landmarks) lm['type']: lm['inFrameLikelihood'],
     };
 
     final currentDetectedView = determineViewType(
-      smoothedLandmarks,
+      convertedLandmarks,
       landmarkLikelihoods,
     );
     if (currentDetectedView != ViewType.undetermined) {
@@ -97,13 +97,13 @@ class PullUpCounter extends Counter {
             (landmarkLikelihoods['rightElbow'] ?? 0) ||
         (landmarkLikelihoods['leftWrist'] ?? 0) <
             (landmarkLikelihoods['rightWrist'] ?? 0)) {
-      a = smoothedLandmarks['rightShoulder'];
-      b = smoothedLandmarks['rightElbow'];
-      c = smoothedLandmarks['rightWrist'];
+      a = convertedLandmarks['rightShoulder'];
+      b = convertedLandmarks['rightElbow'];
+      c = convertedLandmarks['rightWrist'];
     } else {
-      a = smoothedLandmarks['leftShoulder'];
-      b = smoothedLandmarks['leftElbow'];
-      c = smoothedLandmarks['leftWrist'];
+      a = convertedLandmarks['leftShoulder'];
+      b = convertedLandmarks['leftElbow'];
+      c = convertedLandmarks['leftWrist'];
     }
     if (a != null && b != null && c != null) {
       final angle = isUsing3D
@@ -146,7 +146,7 @@ class PullUpCounter extends Counter {
         caloriesBurnt += caloriesPerRep;
       }
     } else if (state == CounterState.down && angle < minAngle) {
-      isUp = _checkUpPosition(smoothedLandmarks, likelihood);
+      isUp = _checkUpPosition(convertedLandmarks, likelihood);
       if (!isUp) {
         errors.addAll({totalCount + 1: "Not in correct position"});
       }

@@ -40,7 +40,7 @@ class BridgeCounter extends Counter {
   @override
   void updateFromLandmarks(List<Map<String, dynamic>> landmarks) {
     if (landmarks.isEmpty) {
-      smoothedLandmarks.clear();
+      convertedLandmarks.clear();
       _inactivityTimer?.cancel();
       _inactivityTimer = null;
       _targetViewType = null;
@@ -48,14 +48,14 @@ class BridgeCounter extends Counter {
       return;
     }
 
-    applySmoothing(landmarks);
+    convertLandmarks(landmarks);
 
     final landmarkLikelihoods = {
       for (var lm in landmarks) lm['type']: lm['inFrameLikelihood'],
     };
 
     final currentDetectedView = determineViewType(
-      smoothedLandmarks,
+      convertedLandmarks,
       landmarkLikelihoods,
     );
     if (currentDetectedView != ViewType.undetermined) {
@@ -91,13 +91,13 @@ class BridgeCounter extends Counter {
             (landmarkLikelihoods['rightHip'] ?? 0) ||
         (landmarkLikelihoods['leftKnee'] ?? 0) <
             (landmarkLikelihoods['rightKnee'] ?? 0)) {
-      a = smoothedLandmarks['rightShoulder'];
-      b = smoothedLandmarks['rightHip'];
-      c = smoothedLandmarks['rightKnee'];
+      a = convertedLandmarks['rightShoulder'];
+      b = convertedLandmarks['rightHip'];
+      c = convertedLandmarks['rightKnee'];
     } else {
-      a = smoothedLandmarks['leftShoulder'];
-      b = smoothedLandmarks['leftHip'];
-      c = smoothedLandmarks['leftKnee'];
+      a = convertedLandmarks['leftShoulder'];
+      b = convertedLandmarks['leftHip'];
+      c = convertedLandmarks['leftKnee'];
     }
     if (a != null && b != null && c != null) {
       final angle = isUsing3D

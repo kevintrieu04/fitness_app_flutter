@@ -67,13 +67,13 @@ class PushUpCounter extends Counter {
           leftElbow != null &&
           (likelihood['leftShoulder'] ?? 0) > 0.5 &&
           (likelihood['leftElbow'] ?? 0) > 0.5) {
-        if (leftShoulder.y < leftElbow.y) return true;
+        if (leftShoulder.y > leftElbow.y) return true;
       }
       if (rightShoulder != null &&
           rightElbow != null &&
           (likelihood['rightShoulder'] ?? 0) > 0.5 &&
           (likelihood['rightElbow'] ?? 0) > 0.5) {
-        if (rightShoulder.y < rightElbow.y) return true;
+        if (rightShoulder.y > rightElbow.y) return true;
       }
       return false; // Not in down position from back view
     } else {
@@ -177,7 +177,7 @@ class PushUpCounter extends Counter {
   void updateFromLandmarks(List<Map<String, dynamic>> landmarks) {
     if (landmarks.isEmpty) {
       _isDown = false; // Reset ready state if no landmarks
-      smoothedLandmarks.clear(); // Clear smoothed data on reset
+      convertedLandmarks.clear(); // Clear smoothed data on reset
       // Cancel timer if no landmarks are present
       _inactivityTimer?.cancel();
       _inactivityTimer = null;
@@ -186,8 +186,7 @@ class PushUpCounter extends Counter {
       return;
     }
 
-    // Apply EMA smoothing
-    applySmoothing(landmarks);
+    convertLandmarks(landmarks);
 
     final landmarkLikelihoods = {
       for (var lm in landmarks) lm['type']: lm['inFrameLikelihood'],
@@ -195,7 +194,7 @@ class PushUpCounter extends Counter {
 
     // Determine view type dynamically
     final currentDetectedView = determineViewType(
-      smoothedLandmarks,
+      convertedLandmarks,
       landmarkLikelihoods,
     );
     if (currentDetectedView != ViewType.undetermined) {
@@ -236,7 +235,7 @@ class PushUpCounter extends Counter {
     // Check back straightness for all exercises, but mainly for pushups visually
 
     _isDown = _checkDownPosition(
-      smoothedLandmarks,
+      convertedLandmarks,
       landmarkLikelihoods,
     ); // Pass viewType
     //print("_isDown: $_isDown");
@@ -245,7 +244,7 @@ class PushUpCounter extends Counter {
     // print("viewType: $viewType");
     if (viewType != ViewType.front) {
       isBackStraight = checkBackStraightness(
-        smoothedLandmarks,
+        convertedLandmarks,
         landmarkLikelihoods,
       );
     }
@@ -258,13 +257,13 @@ class PushUpCounter extends Counter {
             (landmarkLikelihoods['rightElbow'] ?? 0) ||
         (landmarkLikelihoods['leftWrist'] ?? 0) <
             (landmarkLikelihoods['rightWrist'] ?? 0)) {
-      a = smoothedLandmarks['rightShoulder'];
-      b = smoothedLandmarks['rightElbow'];
-      c = smoothedLandmarks['rightWrist'];
+      a = convertedLandmarks['rightShoulder'];
+      b = convertedLandmarks['rightElbow'];
+      c = convertedLandmarks['rightWrist'];
     } else {
-      a = smoothedLandmarks['leftShoulder'];
-      b = smoothedLandmarks['leftElbow'];
-      c = smoothedLandmarks['leftWrist'];
+      a = convertedLandmarks['leftShoulder'];
+      b = convertedLandmarks['leftElbow'];
+      c = convertedLandmarks['leftWrist'];
     }
     if (a != null && b != null && c != null) {
       final angle = isUsing3D? calculateAngle3D(a, b, c) : calculateAngle2D(a, b, c);
